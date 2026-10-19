@@ -3,12 +3,17 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Full Body Tres Días</title>
+<title>Full Body</title>
+<meta name="description" content="Rutina de ejercicios con animaciones, músculos trabajados y registro de series.">
 <meta name="theme-color" content="#2346c9">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232346c9'/%3E%3Crect x='10' y='25' width='8' height='14' rx='2' fill='white'/%3E%3Crect x='46' y='25' width='8' height='14' rx='2' fill='white'/%3E%3Crect x='17' y='20' width='7' height='24' rx='2' fill='white'/%3E%3Crect x='40' y='20' width='7' height='24' rx='2' fill='white'/%3E%3Crect x='24' y='30' width='16' height='4' fill='white'/%3E%3C/svg%3E" type="image/svg+xml">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232346c9'/%3E%3Crect x='10' y='26' width='8' height='12' rx='2' fill='white'/%3E%3Crect x='46' y='26' width='8' height='12' rx='2' fill='white'/%3E%3Crect x='17' y='22' width='6' height='20' rx='2' fill='white'/%3E%3Crect x='41' y='22' width='6' height='20' rx='2' fill='white'/%3E%3Crect x='23' y='30' width='18' height='4' fill='white'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232346c9'/%3E%3Crect x='10' y='26' width='8' height='12' rx='2' fill='white'/%3E%3Crect x='46' y='26' width='8' height='12' rx='2' fill='white'/%3E%3Crect x='17' y='22' width='6' height='20' rx='2' fill='white'/%3E%3Crect x='41' y='22' width='6' height='20' rx='2' fill='white'/%3E%3Crect x='23' y='30' width='18' height='4' fill='white'/%3E%3C/svg%3E">
+<meta name="apple-mobile-web-app-title" content="Full Body">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@600;800&family=Figtree:wght@400;500;600;700&display=swap">
@@ -332,7 +337,7 @@ let anim=null, curDay=1;
 function show(id){['home','dayView','exView','cfgView'].forEach(s=>$('#'+s).hidden=s!==id); if(id!=='exView') stopAnim(); window.scrollTo(0,0);}
 const GEAR=`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
 function renderHome(){
-  const n=DAYS.length;
+  const n=DAYS.length; document.title=CFG.title||'Mi rutina';
   $('#home').innerHTML=`
     <div class="hero"><div><span class="k">Rutina · ${n} día${n>1?'s':''} por semana</span><h1>${esc(CFG.title||'Mi rutina')}</h1>
     <p class="sub">${JSON.stringify(CFG)===JSON.stringify(DEFAULT)?'Cada sesión trabaja todo el cuerpo con ejercicios compuestos: piernas, empuje y tracción.':'Toca un día para ver sus ejercicios.'}</p></div>
@@ -510,6 +515,9 @@ $('#exView').addEventListener('click',e=>{
 });
 renderHome();
 })();
+</script>
+<script>
+if('serviceWorker' in navigator&&location.protocol==='https:'){addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}
 </script>
 </body>
 </html>
