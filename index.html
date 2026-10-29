@@ -92,7 +92,7 @@ h3{font-size:1.15rem;font-weight:800;letter-spacing:.04em}
 .phase{position:absolute;left:14px;bottom:14px;font-size:.78rem;color:var(--muted);font-weight:600}
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
-.stat b{display:block;font:800 1.9rem/1 var(--f-display);font-variant-numeric:tabular-nums;margin-top:4px}
+.stat b{display:block;font:800 clamp(1.35rem,6vw,1.9rem)/1 var(--f-display);font-variant-numeric:tabular-nums;margin-top:4px;white-space:nowrap}
 .sets{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .set{width:46px;height:46px;border-radius:50%;border:2px solid var(--line);background:var(--surface);font:800 1.2rem var(--f-display);display:grid;place-items:center}
 .set[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
@@ -176,12 +176,12 @@ const $=s=>document.querySelector(s);
 const KEY='fullbody3.v1';
 
 /* ---------- datos ---------- */
-const NAMES={pecho:'Pecho',hombros:'Hombro frontal',deltpost:'Hombro posterior',biceps:'Bíceps',triceps:'Tríceps',antebrazos:'Antebrazos',abdomen:'Abdomen',trapecio:'Trapecio',dorsal:'Dorsal ancho',lumbar:'Zona lumbar',gluteos:'Glúteos',cuadriceps:'Cuádriceps',isquios:'Isquiotibiales',gemelos:'Gemelos'};
-const GROUP={pierna:'Piernas',empuje:'Empuje',traccion:'Tracción'};
+const NAMES={pecho:'Pecho',hombros:'Hombro frontal',deltpost:'Hombro posterior',biceps:'Bíceps',triceps:'Tríceps',antebrazos:'Antebrazos',abdomen:'Abdomen',trapecio:'Trapecio',dorsal:'Dorsal ancho',lumbar:'Zona lumbar',gluteos:'Glúteos',cuadriceps:'Cuádriceps',isquios:'Isquiotibiales',gemelos:'Gemelos',aductores:'Aductores',abductores:'Glúteo medio (abductores)',oblicuos:'Oblicuos',deltlat:'Hombro lateral'};
+const GROUP={pierna:'Pierna y cadena posterior',empuje:'Pecho y hombro',traccion:'Espalda',brazos:'Brazos',abdomen:'Abdomen'};
 const G=200; // nivel del piso en la figura
 
 const EX={
-  sentadilla:{name:'Sentadilla',group:'pierna',prim:['cuadriceps','gluteos'],sec:['isquios','lumbar','abdomen','gemelos'],
+  sentadilla:{name:'Sentadilla libre',group:'pierna',prim:['cuadriceps','gluteos'],sec:['isquios','lumbar','abdomen','gemelos'],
     steps:['Barra apoyada sobre los trapecios, pies al ancho de hombros.','Baja llevando la cadera atrás hasta que el muslo quede paralelo al piso.','Empuja con todo el pie y sube sin redondear la espalda.'],
     avoid:'Que las rodillas se cierren hacia adentro.', alt:'prensa',
     anc:{j:'ankle',x:96,y:G-2},
@@ -249,7 +249,165 @@ const EX={
     A:{thigh:98,shin:82,foot:0,torso:-4,ua:90,fa:90,fua:92,ffa:90,fthigh:88,fshin:180},
     B:{ua:185,fa:88},
     stat:`<rect class="EF" x="32" y="166" width="108" height="7" rx="3"/><line class="E" stroke-width="5" x1="44" y1="170" x2="44" y2="${G}"/><line class="E" stroke-width="5" x1="128" y1="170" x2="128" y2="${G}"/>`,
-    eq:J=>dumbbell(J.hand)}
+    eq:J=>dumbbell(J.hand)},
+  rumano:{name:'Peso muerto rumano',group:'pierna',prim:['isquios','gluteos'],sec:['lumbar','antebrazos','trapecio'],
+    steps:['De pie con la barra en las manos, rodillas apenas flexionadas.','Lleva la cadera atrás y baja la barra pegada a las piernas hasta media tibia.','Sube empujando la cadera hacia adelante y aprieta glúteos arriba.'],
+    avoid:'Redondear la espalda o doblar mucho las rodillas.', alt:'muerto',
+    anc:{j:'ankle',x:104,y:G-2},
+    A:{thigh:74.6,shin:99.6,foot:0,torso:-90,ua:90,fa:90},
+    B:{thigh:64.5,shin:86,torso:-28},
+    eq:J=>plate(J.hand)},
+  muerto:{name:'Peso muerto',group:'pierna',prim:['gluteos','isquios','lumbar'],sec:['cuadriceps','trapecio','dorsal','antebrazos'],
+    steps:['Barra sobre la mitad del pie, agárrala con la espalda recta y el pecho arriba.','Empuja el piso con las piernas y sube la barra pegada al cuerpo.','Termina de pie con la cadera extendida y baja con el mismo camino.'],
+    avoid:'Tirar con la espalda curvada.', alt:'rumano',
+    anc:{j:'ankle',x:104,y:G-2},
+    A:{thigh:8.2,shin:106.8,foot:0,torso:-28,ua:90,fa:90},
+    B:{thigh:74.6,shin:99.6,torso:-90},
+    eq:J=>plate(J.hand)},
+  sumo:{name:'Sentadilla sumo',group:'pierna',prim:['cuadriceps','gluteos','aductores'],sec:['isquios','lumbar'],
+    steps:['Pies bastante más abiertos que los hombros y puntas hacia afuera.','Sostén una mancuerna o pesa rusa entre las piernas y baja con el torso erguido.','Sube empujando con los talones y abriendo las rodillas.'],
+    avoid:'Que las rodillas se vayan hacia adentro.',
+    anc:{j:'ankle',x:100,y:G-2},
+    A:{thigh:75.8,shin:101.3,foot:0,torso:-88,ua:90,fa:90},
+    B:{thigh:10.2,shin:129.4,torso:-72},
+    eq:J=>kb(J.hand)},
+  bulgara:{name:'Sentadilla búlgara',group:'pierna',prim:['cuadriceps','gluteos'],sec:['isquios','aductores','abductores'],
+    steps:['Empeine del pie de atrás apoyado en un banco; el de adelante, a un paso largo.','Baja recto hasta que la rodilla de atrás casi toque el piso.','Sube empujando con el pie de adelante. Haz todas las reps y cambia de pierna.'],
+    avoid:'Que la rodilla de adelante se vaya hacia adentro.', alt:'zancada',
+    anc:{j:'ankle',x:122,y:G-2},
+    A:{thigh:65.4,shin:82.4,foot:0,ffoot:180,fthigh:93.5,fshin:-171.5,torso:-85,ua:90,fa:90},
+    B:{thigh:3.1,shin:108.9,fthigh:120.7,fshin:-114.5,torso:-80},
+    stat:`<rect class="EF" x="26" y="160" width="48" height="7" rx="3"/><line class="E" stroke-width="5" x1="34" y1="164" x2="34" y2="${G}"/><line class="E" stroke-width="5" x1="66" y1="164" x2="66" y2="${G}"/>`,
+    eq:J=>dumbbell(J.hand)},
+  zancada:{name:'Zancadas',group:'pierna',prim:['cuadriceps','gluteos'],sec:['isquios','aductores','gemelos'],
+    steps:['De pie con mancuernas, da un paso largo hacia adelante.','Baja hasta que ambas rodillas queden cerca de 90°.','Empuja con el pie de adelante para volver y alterna de pierna.'],
+    avoid:'Dar pasos cortos que cargan la rodilla.', alt:'bulgara',
+    anc:{j:'ankle',x:126,y:G-2},
+    A:{thigh:59.9,shin:80,foot:0,ffoot:51,fthigh:85.3,fshin:139.2,torso:-88,ua:90,fa:90},
+    B:{thigh:5.4,shin:107.2,fthigh:69.8,fshin:185.1},
+    eq:J=>dumbbell(J.hand)},
+  abductores:{name:'Abductores en máquina',group:'pierna',prim:['abductores'],sec:['gluteos'],
+    steps:['Sentado con la espalda apoyada y las almohadillas por fuera de las rodillas.','Abre las piernas empujando hacia afuera hasta tu máximo cómodo.','Regresa lento sin dejar que las placas choquen.'],
+    avoid:'Usar impulso o despegar la espalda del respaldo.',
+    draw:t=>abdFig(t)},
+  femoral:{name:'Curl femoral',group:'pierna',prim:['isquios'],sec:['gemelos'],
+    steps:['Acostado boca abajo, el rodillo justo encima de los talones.','Dobla las rodillas llevando los talones hacia los glúteos.','Baja lento hasta casi estirar las piernas.'],
+    avoid:'Levantar la cadera del banco.',
+    anc:{j:'hip',x:110,y:150},
+    A:{thigh:0,shin:0,foot:90,torso:180,ua:100,fa:180},
+    B:{shin:-100,foot:-10},
+    stat:`<rect class="EF" x="38" y="157" width="120" height="7" rx="3"/><line class="E" stroke-width="5" x1="50" y1="162" x2="50" y2="${G}"/><line class="E" stroke-width="5" x1="146" y1="162" x2="146" y2="${G}"/>`,
+    eq:J=>roller(J)},
+  extension:{name:'Extensión de piernas',group:'pierna',prim:['cuadriceps'],sec:[],
+    steps:['Sentado con la espalda pegada y el rodillo sobre los tobillos.','Estira las piernas hasta dejarlas rectas y aprieta un segundo.','Baja controlado sin dejar caer el peso.'],
+    avoid:'Patear con impulso o despegar la cadera.',
+    anc:{j:'hip',x:90,y:150},
+    A:{thigh:0,shin:100,foot:10,torso:-100,ua:100,fa:40},
+    B:{shin:5,foot:-85},
+    stat:`<rect class="EF" x="64" y="157" width="66" height="7" rx="3"/><line class="E" stroke-width="7" x1="70" y1="158" x2="60" y2="98"/><line class="E" stroke-width="5" x1="96" y1="163" x2="96" y2="${G}"/>`,
+    eq:J=>roller(J)},
+  hipthrust:{name:'Hip thrust',group:'pierna',prim:['gluteos'],sec:['isquios','abductores','cuadriceps'],
+    steps:['Parte alta de la espalda apoyada en el banco y la barra sobre la cadera.','Empuja con los talones y sube la cadera hasta alinear rodillas, cadera y hombros.','Aprieta glúteos arriba un segundo y baja controlado.'],
+    avoid:'Arquear la zona lumbar en lugar de subir con glúteos.',
+    anc:{j:'ankle',x:142,y:G-2},
+    A:{thigh:-25.6,shin:73.8,foot:0,torso:220,ua:-7.6,fa:64.9},
+    B:{thigh:12.6,shin:94.2,torso:184,ua:-28.8,fa:12.9},
+    stat:`<rect class="EF" x="12" y="152" width="48" height="8" rx="3"/><line class="E" stroke-width="5" x1="20" y1="158" x2="20" y2="${G}"/><line class="E" stroke-width="5" x1="52" y1="158" x2="52" y2="${G}"/>`,
+    eq:J=>plate([J.hip[0]+2,J.hip[1]-11])},
+  gemelos:{name:'Elevación de talones',group:'pierna',prim:['gemelos'],sec:[],
+    steps:['Parte delantera del pie sobre un escalón y talones en el aire.','Baja los talones hasta sentir el estiramiento.','Sube todo lo que puedas sobre las puntas y aguanta un segundo.'],
+    avoid:'Rebotar abajo o hacer medio recorrido.',
+    anc:{j:'toe',x:116,y:189},
+    A:{thigh:90,shin:90,foot:-22,torso:-90,ua:90,fa:90},
+    B:{foot:42},
+    stat:`<rect class="EF" x="110" y="194" width="58" height="6"/>`,
+    eq:J=>dumbbell(J.hand)},
+  inclinado:{name:'Press inclinado',group:'empuje',prim:['pecho','hombros'],sec:['triceps'],
+    steps:['Banco inclinado a unos 30–45°, omóplatos juntos.','Baja la barra o mancuernas a la parte alta del pecho.','Empuja hacia arriba hasta estirar los brazos.'],
+    avoid:'Despegar la espalda o bajar la barra al cuello.', alt:'banca',
+    anc:{j:'hip',x:110,y:150},
+    A:{thigh:10.3,shin:94.8,foot:0,torso:-145,ua:24.1,fa:-113.2},
+    B:{ua:-74.5,fa:-101.4},
+    stat:`<line class="E" stroke-width="7" x1="105" y1="158" x2="47" y2="117"/><rect class="EF" x="86" y="157" width="40" height="7" rx="3"/><line class="E" stroke-width="5" x1="100" y1="162" x2="100" y2="${G}"/><line class="E" stroke-width="5" x1="62" y1="130" x2="62" y2="${G}"/>`,
+    eq:J=>plate(J.hand)},
+  flexiones:{name:'Flexiones',group:'empuje',prim:['pecho'],sec:['triceps','hombros','abdomen'],
+    steps:['Manos un poco más abiertas que los hombros y el cuerpo recto de cabeza a talones.','Baja el pecho cerca del piso con los codos a unos 45° del cuerpo.','Empuja el piso hasta estirar los brazos.'],
+    avoid:'Dejar caer la cadera.', alt:'banca',
+    anc:{j:'ankle',x:180,y:191},
+    A:{thigh:21.6,shin:23.4,foot:135,torso:-157.5,ua:88.7,fa:90.9},
+    B:{thigh:8.5,shin:10.3,torso:-170.6,ua:16.3,fa:135.7},
+    eq:()=>''},
+  laterales:{name:'Elevaciones laterales',group:'empuje',prim:['deltlat'],sec:['trapecio','hombros'],
+    steps:['De pie con una mancuerna en cada mano a los costados.','Sube los brazos por los lados con los codos apenas doblados hasta la altura del hombro.','Baja lento sin dejar caer las mancuernas.'],
+    avoid:'Subir con impulso o encoger los hombros.',
+    front:{A:{a:10,b:12,sh:0},B:{a:88,b:92}}},
+  mediavuelta:{name:'Media vuelta al mundo',group:'empuje',prim:['deltlat','hombros'],sec:['trapecio','deltpost'],
+    steps:['De pie con mancuernas ligeras y los brazos estirados a los lados.','Dibuja media circunferencia por los costados hasta juntar las manos sobre la cabeza.','Baja por el mismo camino, lento y controlado.'],
+    avoid:'Usar mucho peso y arquear la espalda.', alt:'laterales',
+    front:{A:{a:8,b:8,sh:0},B:{a:170,b:176}}},
+  frontal:{name:'Elevación frontal',group:'empuje',prim:['hombros'],sec:['deltlat','trapecio'],
+    steps:['De pie con las mancuernas delante de los muslos.','Sube los brazos estirados al frente hasta la altura de los hombros.','Baja lento a la posición inicial.'],
+    avoid:'Balancear el cuerpo para subir.',
+    anc:{j:'ankle',x:96,y:G-2},
+    A:{thigh:90,shin:90,foot:0,torso:-90,ua:82,fa:82},
+    B:{ua:-6,fa:-6},
+    eq:J=>dumbbell(J.hand)},
+  encogimientos:{name:'Encogimientos',group:'traccion',prim:['trapecio'],sec:['antebrazos'],
+    steps:['De pie con mancuernas o barra y los brazos estirados.','Sube los hombros hacia las orejas lo más alto que puedas.','Aguanta un segundo arriba y baja lento.'],
+    avoid:'Girar los hombros en círculos.',
+    front:{A:{a:6,b:6,sh:0},B:{sh:9}}},
+  polea:{name:'Remo en polea baja',group:'traccion',prim:['dorsal','trapecio'],sec:['biceps','deltpost','antebrazos'],
+    steps:['Sentado con los pies en la plataforma y rodillas apenas dobladas.','Jala el agarre hacia el abdomen juntando los omóplatos.','Estira los brazos de nuevo sin redondear la espalda.'],
+    avoid:'Balancear el torso adelante y atrás.', alt:'remo',
+    anc:{j:'hip',x:70,y:176},
+    A:{thigh:-10,shin:10,foot:-80,torso:-95,ua:5,fa:5},
+    B:{torso:-102,ua:160,fa:10},
+    stat:`<rect class="EF" x="40" y="183" width="58" height="17" rx="3"/><line class="E" stroke-width="6" x1="156" y1="148" x2="156" y2="${G}"/><line class="E" stroke-width="6" x1="176" y1="120" x2="176" y2="${G}"/><circle class="EF" cx="170" cy="168" r="5"/>`,
+    eq:J=>`<line class="E" stroke-width="2" x1="${J.hand[0]}" y1="${J.hand[1]}" x2="170" y2="168"/><circle class="P" cx="${J.hand[0]}" cy="${J.hand[1]}" r="5"/>`},
+  curl:{name:'Curl de bíceps',group:'brazos',prim:['biceps'],sec:['antebrazos'],
+    steps:['De pie con mancuernas o barra y los codos pegados al cuerpo.','Dobla los codos subiendo el peso hacia los hombros.','Baja lento hasta estirar los brazos.'],
+    avoid:'Mover los codos hacia adelante o balancear el cuerpo.',
+    anc:{j:'ankle',x:100,y:G-2},
+    A:{thigh:90,shin:90,foot:0,torso:-90,ua:92,fa:92},
+    B:{ua:82,fa:-75},
+    eq:J=>dumbbell(J.hand)},
+  tricepspolea:{name:'Tríceps en polea',group:'brazos',prim:['triceps'],sec:[],
+    steps:['De pie frente a la polea alta, codos pegados al cuerpo.','Empuja el agarre hacia abajo hasta estirar los brazos.','Sube lento hasta la altura del pecho sin despegar los codos.'],
+    avoid:'Mover los hombros para empujar.', alt:'frances',
+    anc:{j:'ankle',x:88,y:G-2},
+    A:{thigh:90,shin:90,foot:0,torso:-84,ua:95,fa:-35},
+    B:{fa:80},
+    stat:`<line class="E" stroke-width="6" x1="164" y1="14" x2="164" y2="${G}"/><circle class="EF" cx="156" cy="20" r="5"/>`,
+    eq:J=>`<line class="E" stroke-width="2" x1="${J.hand[0]}" y1="${J.hand[1]}" x2="156" y2="20"/><circle class="P" cx="${J.hand[0]}" cy="${J.hand[1]}" r="5"/>`},
+  frances:{name:'Press francés',group:'brazos',prim:['triceps'],sec:[],
+    steps:['Acostado en el banco con la barra arriba y los brazos estirados.','Dobla solo los codos y baja la barra hacia la frente.','Estira los brazos de nuevo sin mover los codos.'],
+    avoid:'Abrir los codos hacia los lados.', alt:'tricepspolea',
+    anc:{j:'hip',x:112,y:138},
+    A:{thigh:25,shin:95,foot:0,torso:180,ua:-100,fa:-100},
+    B:{fa:-225},
+    stat:`<rect class="EF" x="38" y="146" width="88" height="7" rx="3"/><line class="E" stroke-width="5" x1="50" y1="150" x2="50" y2="${G}"/><line class="E" stroke-width="5" x1="114" y1="150" x2="114" y2="${G}"/>`,
+    eq:J=>plate(J.hand,9)},
+  elevpiernas:{name:'Elevación de piernas',group:'abdomen',prim:['abdomen'],sec:['oblicuos','cuadriceps'],
+    steps:['Acostado boca arriba, brazos a los lados y zona lumbar pegada al piso.','Sube las piernas estiradas hasta la vertical.','Bájalas lento sin que toquen el piso.'],
+    avoid:'Despegar la zona lumbar del piso.',
+    anc:{j:'hip',x:112,y:193},
+    A:{thigh:-6,shin:-6,foot:-96,torso:180,ua:2,fa:2},
+    B:{thigh:-88,shin:-88,foot:-178},
+    eq:()=>''},
+  plancha:{name:'Plancha isométrica',group:'abdomen',hold:true,prim:['abdomen'],sec:['oblicuos','hombros','gluteos'],
+    steps:['Antebrazos en el piso con los codos debajo de los hombros.','Cuerpo recto de cabeza a talones, abdomen y glúteos apretados.','Mantén la posición respirando normal el tiempo indicado.'],
+    avoid:'Dejar caer la cadera o subirla demasiado.',
+    anc:{j:'hip',x:107,y:174},
+    A:{thigh:12.6,shin:12.6,foot:140,torso:-167.4,ua:90,fa:180},
+    B:{},
+    eq:()=>''},
+  crunch:{name:'Crunch abdominal',group:'abdomen',prim:['abdomen'],sec:['oblicuos'],
+    steps:['Acostado boca arriba con las rodillas dobladas y los pies en el piso.','Sube los hombros del piso contrayendo el abdomen.','Baja lento sin apoyar del todo la cabeza.'],
+    avoid:'Jalar el cuello con las manos.', alt:'elevpiernas',
+    anc:{j:'hip',x:100,y:193},
+    A:{thigh:-45,shin:50,foot:0,torso:180,ua:-20,fa:-20},
+    B:{torso:210,ua:-8,fa:-8},
+    eq:()=>''}
 };
 const S=(id,sets,reps,rest)=>({id,sets,reps,rest});
 const DEFAULT={title:'Full Body',days:[
@@ -285,7 +443,7 @@ function joints(p,anc){
   J.knee=add(hip,p.thigh,40); J.ankle=add(J.knee,p.shin,40); J.toe=add(J.ankle,p.foot,13);
   J.sh=add(hip,p.torso,48); J.head=add(J.sh,p.torso,17);
   J.elbow=add(J.sh,p.ua,28); J.hand=add(J.elbow,p.fa,26);
-  J.fknee=add(hip,p.fthigh??p.thigh,40); J.fankle=add(J.fknee,p.fshin??p.shin,40); J.ftoe=add(J.fankle,p.foot,13);
+  J.fknee=add(hip,p.fthigh??p.thigh,40); J.fankle=add(J.fknee,p.fshin??p.shin,40); J.ftoe=add(J.fankle,p.ffoot??p.foot,13);
   J.felbow=add(J.sh,p.fua??p.ua,28); J.fhand=add(J.felbow,p.ffa??p.fa,26);
   const far=p.fua==null&&p.fthigh==null; // sin extremidades propias: el lado lejano va un poco desplazado
   const o=J[anc.j], dx=anc.x-o[0], dy=anc.y-o[1];
@@ -293,11 +451,38 @@ function joints(p,anc){
   if(far) ['fknee','fankle','ftoe','felbow','fhand'].forEach(k=>{J[k]=[J[k][0]-4,J[k][1]-2]});
   return J;
 }
-const poseAt=(ex,t)=>{const A=ex.A,B={...A,...ex.B},o={};for(const k in A){o[k]=A[k]+(B[k]-A[k])*t}return o};
+const poseAt=(ex,t)=>{const A=ex.A,B={...A,...ex.B},o={};for(const k in A){let d=((B[k]-A[k])%360+540)%360-180; o[k]=A[k]+d*t}return o}; // gira siempre por el camino corto
 const pl=(...pts)=>pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
-function plate(h){return `<circle class="P" cx="${h[0]}" cy="${h[1]}" r="12"/><circle class="Pi" cx="${h[0]}" cy="${h[1]}" r="3"/>`}
+function plate(h,r=12){return `<circle class="P" cx="${h[0]}" cy="${h[1]}" r="${r}"/><circle class="Pi" cx="${h[0]}" cy="${h[1]}" r="3"/>`}
 function dumbbell(h){return `<circle class="P" cx="${h[0]}" cy="${h[1]}" r="7"/><circle class="Pi" cx="${h[0]}" cy="${h[1]}" r="2"/>`}
+function kb(h){return `<line class="E" stroke-width="3" x1="${h[0]-5}" y1="${h[1]}" x2="${h[0]+5}" y2="${h[1]}"/><circle class="P" cx="${h[0]}" cy="${h[1]+9}" r="8"/>`}
+function roller(J){const dx=J.ankle[0]-J.knee[0],dy=J.ankle[1]-J.knee[1],l=Math.hypot(dx,dy);return `<circle class="P" cx="${J.ankle[0]+dy/l*8}" cy="${J.ankle[1]-dx/l*8}" r="6"/>`}
+/* vista frontal: para movimientos que van hacia los costados */
+function frontFig(ex,t){
+  const A=ex.front.A,B={...A,...ex.front.B},p={};for(const k in A)p[k]=A[k]+(B[k]-A[k])*t;
+  let s=`<line class="G" x1="10" y1="${G}" x2="190" y2="${G}"/>`;
+  [1,-1].forEach(k=>{s+=`<polyline class="L" stroke-width="9" points="${pl([100+7*k,124],[100+9*k,161],[100+10*k,197],[100+17*k,198])}"/>`});
+  s+=`<line class="L" stroke-width="13" x1="100" y1="126" x2="100" y2="84"/><line class="L" stroke-width="6" x1="100" y1="84" x2="100" y2="70"/><circle class="hd" cx="100" cy="60" r="9"/>`;
+  const sy=82-p.sh; s+=`<line class="L" stroke-width="9" x1="86" y1="${sy}" x2="114" y2="${sy}"/>`;
+  [1,-1].forEach(k=>{const r=a=>[k*Math.sin(a*Math.PI/180),Math.cos(a*Math.PI/180)];
+    const sh=[100+14*k,sy],ua=r(p.a),fa=r(p.b),el=[sh[0]+ua[0]*28,sh[1]+ua[1]*28],h=[el[0]+fa[0]*26,el[1]+fa[1]*26];
+    s+=`<polyline class="L" stroke-width="8" points="${pl(sh,el,h)}"/>`+dumbbell(h);});
+  return s;
+}
+/* abductores: vista frontal sentado */
+function abdFig(t){
+  const k=9+17*t; let s=`<line class="G" x1="10" y1="${G}" x2="190" y2="${G}"/>`;
+  s+=`<rect class="EF" x="84" y="78" width="32" height="64" rx="5" opacity=".35"/><rect class="EF" x="66" y="141" width="68" height="7" rx="3"/><line class="E" stroke-width="5" x1="100" y1="148" x2="100" y2="${G}"/>`;
+  s+=`<line class="L" stroke-width="13" x1="100" y1="138" x2="100" y2="88"/><line class="L" stroke-width="6" x1="100" y1="88" x2="100" y2="76"/><circle class="hd" cx="100" cy="66" r="9"/><line class="L" stroke-width="9" x1="87" y1="88" x2="113" y2="88"/>`;
+  [1,-1].forEach(d=>{const hip=[100+7*d,140],kn=[100+(7+k)*d,150],an=[100+(7+k*.6)*d,188];
+    s+=`<polyline class="L" stroke-width="7" points="${pl([100+13*d,88],[100+20*d,112],[100+23*d,136])}"/>`;
+    s+=`<polyline class="L" stroke-width="10" points="${pl(hip,kn,an,[an[0]+5*d,an[1]+3])}"/>`;
+    s+=`<line class="E" stroke-width="7" x1="${kn[0]+9*d}" y1="138" x2="${kn[0]+9*d}" y2="162"/>`;});
+  return s;
+}
 function figure(ex,t){
+  if(ex.draw) return ex.draw(t);
+  if(ex.front) return frontFig(ex,t);
   const J=joints(poseAt(ex,t),ex.anc);
   let s=ex.floor===false?'':`<line class="G" x1="10" y1="${G}" x2="190" y2="${G}"/>`;
   s+=ex.stat||'';
@@ -319,13 +504,13 @@ const BASE=`<circle cx="60" cy="18" r="12"/><rect x="54" y="28" width="12" heigh
 const FRONT=[
   ['trapecio',pair(48,40,8,4,20)],['hombros',pair(38,50,9,9)],['pecho',pair(49,59,11,9,8)],
   ['biceps',pair(31,77,6,13,8)],['antebrazos',pair(26,107,5,14,10)],
-  ['abdomen',`<rect x="51" y="70" width="18" height="44" rx="6"/>${pair(44,93,4,13)}`],
-  ['cuadriceps',pair(50,158,9,26,3)],[null,pair(49,203,5,17)]
+  ['abdomen',`<rect x="51" y="70" width="18" height="44" rx="6"/>`],['oblicuos',pair(44,93,4,13)],['deltlat',pair(30,52,4,8,8)],
+  ['cuadriceps',pair(50,158,9,26,3)],['aductores',pair(56,150,3.5,16)],['abductores',pair(41,133,4,9,10)],[null,pair(49,203,5,17)]
 ];
 const BACK=[
   ['trapecio',`<path d="M60 31 L79 48 L60 84 L41 48Z"/>`],['deltpost',pair(37,51,9,9)],['dorsal',pair(46,79,9,18,-14)],
   ['lumbar',`<rect x="52" y="90" width="16" height="25" rx="5"/>`],['triceps',pair(31,79,6,13,8)],['antebrazos',pair(26,107,5,14,10)],
-  ['gluteos',pair(50,131,10,11)],['isquios',pair(50,163,8,22,2)],['gemelos',pair(49,203,6,16)]
+  ['gluteos',pair(50,131,10,11)],['abductores',pair(41,118,6,6)],['deltlat',pair(30,52,4,8,8)],['isquios',pair(50,163,8,22,2)],['gemelos',pair(49,203,6,16)]
 ];
 function bodyMap(parts,prim,sec,label){
   const c=k=>prim.includes(k)?'mp':sec.includes(k)?'ms':'mb';
@@ -380,7 +565,7 @@ function renderEx(i,altId){
     </div>
     <div class="stats">
       <div class="stat"><span class="k">Series</span><b>${s.sets}</b></div>
-      <div class="stat"><span class="k">Reps</span><b>${esc(s.reps)}</b></div>
+      <div class="stat"><span class="k">${x.hold?'Tiempo':'Reps'}</span><b>${esc(s.reps)}</b></div>
       <div class="stat"><span class="k">Descanso</span><b>${s.rest}</b></div>
     </div>
     ${altId?'':`<div class="block"><h3>Marca tus series</h3><div class="sets">${Array.from({length:s.sets},(_,k)=>`<button class="set" data-k="${k}" aria-pressed="${!!done[k]}" aria-label="Serie ${k+1}">${k+1}</button>`).join('')}</div></div>`}
@@ -404,7 +589,7 @@ function renderEx(i,altId){
 
 /* ---------- configuración ---------- */
 let draft=null;
-const exOpts=sel=>['pierna','empuje','traccion'].map(g=>`<optgroup label="${GROUP[g]}">${Object.entries(EX).filter(([,x])=>x.group===g).map(([k,x])=>`<option value="${k}"${k===sel?' selected':''}>${x.name}</option>`).join('')}</optgroup>`).join('');
+const exOpts=sel=>Object.keys(GROUP).map(g=>`<optgroup label="${GROUP[g]}">${Object.entries(EX).filter(([,x])=>x.group===g).map(([k,x])=>`<option value="${k}"${k===sel?' selected':''}>${x.name}</option>`).join('')}</optgroup>`).join('');
 const restOpts=sel=>[...new Set([...RESTS,sel])].map(r=>`<option${r===sel?' selected':''}>${esc(r)}</option>`).join('');
 function renderCfg(err){
   const d=draft;
@@ -450,7 +635,7 @@ function cfgAct(e){
   else if(act==='set-'){ ex[j].sets=Math.max(1,ex[j].sets-1); }
   else if(act==='up'){ [ex[j-1],ex[j]]=[ex[j],ex[j-1]]; }
   else if(act==='del'){ ex.splice(j,1); }
-  else if(act==='add'){ const used=new Set(draft.days[d].ex.map(x=>x.id)); const id=Object.keys(EX).find(k=>!used.has(k))||'sentadilla'; draft.days[d].ex.push(S(id,3,'8–12','90 s')); }
+  else if(act==='add'){ const used=new Set(draft.days[d].ex.map(x=>x.id)); const id=Object.keys(EX).find(k=>!used.has(k))||'sentadilla'; draft.days[d].ex.push(S(id,3,EX[id].hold?'30–45 s':'8–12','90 s')); }
   else if(act==='restore'){ draft=clone(DEFAULT); renderCfg(); toast('Rutina original cargada. Pulsa Guardar para usarla'); return; }
   else if(act==='save'){
     draft.title=(draft.title||'').trim()||'Mi rutina';
@@ -465,7 +650,8 @@ function cfgInput(e){
   const t=e.target;
   if(t.id==='cfgTitle'){draft.title=t.value; return;}
   const f=t.dataset.f, row=t.closest('.cfg-ex'); if(!f||!row) return;
-  draft.days[+row.dataset.d].ex[+row.dataset.j][f]=t.value;
+  const it=draft.days[+row.dataset.d].ex[+row.dataset.j]; it[f]=t.value;
+  if(f==='id'&&e.type==='change'){ it.reps=EX[t.value].hold?'30–45 s':(/s$/.test(it.reps)?'8–12':it.reps); const y=window.scrollY; renderCfg(); window.scrollTo(0,y); }
 }
 
 /* ---------- animación ---------- */
@@ -476,7 +662,7 @@ function startAnim(x){
   const st={x,run:!reduce,t0:performance.now(),off:0,raf:0,last:-1};
   const ease=u=>u*u*(3-2*u);
   const tAt=ms=>{const p=(ms%P)/P; if(p<.08) return 0; if(p<.46) return ease((p-.08)/.38); if(p<.54) return 1; if(p<.92) return 1-ease((p-.54)/.38); return 0;};
-  const draw=t=>{fig.innerHTML=figure(x,t); ph.textContent=t<.5?'Inicio':'Final';};
+  const draw=t=>{fig.innerHTML=figure(x,t); ph.textContent=x.hold?'Mantén la posición':t<.5?'Inicio':'Final';};
   const loop=now=>{ if(!st.run) return; st.off=now-st.t0; draw(tAt(st.off)); st.raf=requestAnimationFrame(loop); };
   btn.onclick=()=>{ st.run=!st.run; btn.textContent=st.run?'❚❚ Pausa':'▶ Ver movimiento'; if(st.run){st.t0=performance.now()-st.off; st.raf=requestAnimationFrame(loop);} };
   if(st.run) st.raf=requestAnimationFrame(loop); else {btn.textContent='▶ Ver movimiento'; draw(1);}

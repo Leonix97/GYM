@@ -1,6 +1,6 @@
 // Guarda la app para que abra sin internet.
 // Si cambias index.html, sube también este archivo con otro número de versión.
-const CACHE='fullbody-v1';
+const CACHE='fullbody-v2';
 const CORE=['./','./index.html','./manifest.json','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()));});
 self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim()));});
