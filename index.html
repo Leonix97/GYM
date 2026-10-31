@@ -111,6 +111,18 @@ h3{font-size:1.15rem;font-weight:800;letter-spacing:.04em}
 .avoid span:first-child{width:30px;height:30px;border-radius:50%;background:color-mix(in srgb,var(--hot) 16%,transparent);color:var(--hot);display:grid;place-items:center;font-weight:800}
 .alt{justify-self:start;border:1px dashed var(--line);background:none;border-radius:12px;padding:8px 12px;font-weight:600;font-size:.88rem}
 .alt:hover{border-color:var(--accent);color:var(--accent)}
+.swaprow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px}
+.swapbtn{border:1px solid var(--accent);background:var(--accent-soft);color:var(--accent);border-radius:12px;padding:9px 14px;font-weight:700;font-size:.9rem}
+.swapbtn:hover{background:var(--accent);color:var(--surface)}
+.orig{font-size:.84rem;color:var(--muted)}
+.linkbtn{border:0;background:none;padding:0;color:var(--accent);font-weight:700;text-decoration:underline;font-size:inherit}
+.search{width:100%}
+.pick{display:grid;gap:6px}
+.pick h3{margin-top:6px}
+.pick .ex{grid-template-columns:52px 1fr auto}
+.pick .ex .th{width:52px;height:52px}
+.tag{font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--accent);background:var(--accent-soft);border-radius:6px;padding:3px 6px;white-space:nowrap}
+.empty{color:var(--muted);font-size:.9rem}
 
 /* figura */
 .L{stroke:var(--ink);stroke-linecap:round;stroke-linejoin:round;fill:none}
@@ -155,6 +167,27 @@ h3{font-size:1.15rem;font-weight:800;letter-spacing:.04em}
 .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .primary{border:0;background:var(--accent);color:var(--surface);border-radius:12px;padding:12px 20px;font-weight:700}
 .err{color:var(--hot);font-size:.88rem;font-weight:600}
+/* temporizador de descanso */
+button.stat{text-align:left;font:inherit;color:inherit;cursor:pointer;display:block}
+button.stat:hover{border-color:var(--accent)}
+.stat small{display:block;margin-top:6px;font-size:.72rem;font-weight:700;color:var(--accent)}
+.rest{position:fixed;left:0;right:0;bottom:0;z-index:40;background:var(--surface);border-top:1px solid var(--line);box-shadow:0 -6px 20px rgb(0 0 0 / .08);
+  padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.rest-in{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.ring{width:58px;height:58px;flex:none;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:6}
+.ring .bg{stroke:var(--line)}
+.ring .fg{stroke:var(--accent);stroke-linecap:round;transition:stroke-dashoffset .25s linear}
+.rest.done .ring .fg{stroke:var(--hot)}
+.rest-txt{flex:1;min-width:0}
+.rest-time{font:800 2.1rem/1 var(--f-display);font-variant-numeric:tabular-nums}
+.rest-lbl{font-size:.8rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rest.done .rest-time{color:var(--hot)}
+.rest button{border:1px solid var(--line);background:var(--surface);border-radius:10px;height:40px;padding:0 12px;font-weight:700;font-size:.85rem;flex:none}
+.rest button:hover{border-color:var(--accent)}
+body.resting .app{padding-bottom:110px}
+body.resting .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+@media (prefers-reduced-motion: reduce){.ring .fg{transition:none}}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;font-weight:600;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
 .toast.show{opacity:1}
 </style>
@@ -166,6 +199,15 @@ h3{font-size:1.15rem;font-weight:800;letter-spacing:.04em}
   <section class="screen" id="dayView" hidden></section>
   <section class="screen" id="exView" hidden></section>
   <section class="screen" id="cfgView" hidden></section>
+  <section class="screen" id="swapView" hidden></section>
+</div>
+<div class="rest" id="rest" hidden role="timer" aria-live="off">
+  <div class="rest-in">
+    <svg class="ring" viewBox="0 0 58 58" aria-hidden="true"><circle class="bg" cx="29" cy="29" r="25"/><circle class="fg" id="restRing" cx="29" cy="29" r="25" stroke-dasharray="157.1" stroke-dashoffset="0"/></svg>
+    <div class="rest-txt"><div class="k">Descanso</div><div class="rest-time" id="restTime">0:00</div><div class="rest-lbl" id="restLbl"></div></div>
+    <button id="restAdd" aria-label="Sumar 15 segundos">+15 s</button>
+    <button id="restSkip">Saltar</button>
+  </div>
 </div>
 <div class="toast" id="toast" role="status"></div>
 
@@ -519,7 +561,7 @@ function bodyMap(parts,prim,sec,label){
 
 /* ---------- pantallas ---------- */
 let anim=null, curDay=1;
-function show(id){['home','dayView','exView','cfgView'].forEach(s=>$('#'+s).hidden=s!==id); if(id!=='exView') stopAnim(); window.scrollTo(0,0);}
+function show(id){['home','dayView','exView','cfgView','swapView'].forEach(s=>$('#'+s).hidden=s!==id); if(id!=='exView') stopAnim(); window.scrollTo(0,0);}
 const GEAR=`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
 function renderHome(){
   const n=DAYS.length; document.title=CFG.title||'Mi rutina';
@@ -551,8 +593,8 @@ function renderDay(n){
       </button>`}).join('')}</div>
     <button class="reset" id="resetDay">Reiniciar progreso del día</button>`;
 }
-function renderEx(i,altId){
-  const s=DAYS[curDay-1].ex[i], id=altId||s.id, x=EX[id];
+function renderEx(i){
+  const s=DAYS[curDay-1].ex[i], x=EX[s.id];
   const done=doneOf(curDay,i);
   const legend=[...x.prim.map(k=>[k,'mp']),...x.sec.map(k=>[k,'ms'])];
   $('#exView').innerHTML=`
@@ -566,9 +608,10 @@ function renderEx(i,altId){
     <div class="stats">
       <div class="stat"><span class="k">Series</span><b>${s.sets}</b></div>
       <div class="stat"><span class="k">${x.hold?'Tiempo':'Reps'}</span><b>${esc(s.reps)}</b></div>
-      <div class="stat"><span class="k">Descanso</span><b>${s.rest}</b></div>
+      <button class="stat" id="restStart" aria-label="Iniciar descanso de ${esc(s.rest)}"><span class="k">Descanso</span><b>${esc(s.rest)}</b><small>▶ Iniciar</small></button>
     </div>
-    ${altId?'':`<div class="block"><h3>Marca tus series</h3><div class="sets">${Array.from({length:s.sets},(_,k)=>`<button class="set" data-k="${k}" aria-pressed="${!!done[k]}" aria-label="Serie ${k+1}">${k+1}</button>`).join('')}</div></div>`}
+    <div class="swaprow"><button class="swapbtn" id="swapBtn">⇄ Cambiar ejercicio</button>${s.orig&&EX[s.orig]?`<span class="orig">Reemplaza a ${EX[s.orig].name} · <button class="linkbtn" id="restoreBtn">Restaurar</button></span>`:''}</div>
+    <div class="block"><h3>Marca tus series</h3><div class="sets">${Array.from({length:s.sets},(_,k)=>`<button class="set" data-k="${k}" aria-pressed="${!!done[k]}" aria-label="Serie ${k+1}">${k+1}</button>`).join('')}</div></div>
     <div class="block"><h3>Músculos que trabajas</h3>
       <div class="maps">
         <figure>${bodyMap(FRONT,x.prim,x.sec,'Vista frontal')}<figcaption>Frente</figcaption></figure>
@@ -581,8 +624,7 @@ function renderEx(i,altId){
       <ol class="steps">${x.steps.map(t=>`<li><span>${t}</span></li>`).join('')}</ol>
       <div class="avoid"><span>✕</span><span>${x.avoid}</span></div>
     </div>
-    ${x.alt&&!altId?`<button class="alt" id="altBtn" data-alt="${x.alt}">¿No tienes equipo para este? Alternativa: ${EX[x.alt].name} →</button>`:''}
-    ${altId?`<button class="alt" data-i="${i}" id="backMain">← Volver a ${EX[s.id].name}</button>`:''}`;
+    `;
   $('#exView').dataset.i=i;
   startAnim(x);
 }
@@ -651,7 +693,7 @@ function cfgInput(e){
   if(t.id==='cfgTitle'){draft.title=t.value; return;}
   const f=t.dataset.f, row=t.closest('.cfg-ex'); if(!f||!row) return;
   const it=draft.days[+row.dataset.d].ex[+row.dataset.j]; it[f]=t.value;
-  if(f==='id'&&e.type==='change'){ it.reps=EX[t.value].hold?'30–45 s':(/s$/.test(it.reps)?'8–12':it.reps); const y=window.scrollY; renderCfg(); window.scrollTo(0,y); }
+  if(f==='id'&&e.type==='change'){ delete it.orig; it.reps=EX[t.value].hold?'30–45 s':(/s$/.test(it.reps)?'8–12':it.reps); const y=window.scrollY; renderCfg(); window.scrollTo(0,y); }
 }
 
 /* ---------- animación ---------- */
@@ -671,7 +713,80 @@ function startAnim(x){
 function stopAnim(){ if(anim){anim.run=false; cancelAnimationFrame(anim.raf); anim=null;} }
 
 let toastT;
+/* ---------- temporizador de descanso ---------- */
+const parseRest=r=>{const m=String(r).match(/\d+/); if(!m) return 90; const n=+m[0]; return /min/i.test(r)?n*60:n;};
+const RT={end:0,total:0,iv:0,lbl:'',hide:0,lock:null,ac:null};
+const fmt=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
+function unlockAudio(){try{RT.ac=RT.ac||new (window.AudioContext||window.webkitAudioContext)(); if(RT.ac.state==='suspended') RT.ac.resume();}catch(e){}}
+function beep(){try{const ac=RT.ac; if(!ac) return; [0,.35,.7].forEach((d,i)=>{const o=ac.createOscillator(),g=ac.createGain(); o.frequency.value=i===2?1175:880; o.connect(g); g.connect(ac.destination);
+  const t=ac.currentTime+d; g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.35,t+.02); g.gain.exponentialRampToValueAtTime(.0001,t+.25); o.start(t); o.stop(t+.27);});}catch(e){}}
+async function wake(on){try{ if(on&&!RT.lock&&navigator.wakeLock) RT.lock=await navigator.wakeLock.request('screen'); if(!on&&RT.lock){RT.lock.release(); RT.lock=null;} }catch(e){RT.lock=null}}
+function saveRest(){try{RT.end?localStorage.setItem(KEY+'.rest',JSON.stringify({end:RT.end,total:RT.total,lbl:RT.lbl})):localStorage.removeItem(KEY+'.rest')}catch(e){}}
+function startRest(sec,lbl,silent){
+  if(!silent) unlockAudio();
+  clearTimeout(RT.hide); RT.total=sec; RT.end=Date.now()+sec*1000; RT.lbl=lbl;
+  $('#rest').hidden=false; $('#rest').classList.remove('done'); document.body.classList.add('resting');
+  $('#restLbl').textContent=lbl; saveRest(); wake(true);
+  clearInterval(RT.iv); RT.iv=setInterval(tickRest,250); tickRest();
+}
+function tickRest(){
+  const left=Math.max(0,Math.ceil((RT.end-Date.now())/1000));
+  $('#restTime').textContent=fmt(left);
+  $('#restRing').setAttribute('stroke-dashoffset',(157.1*(1-left/RT.total)).toFixed(1));
+  if(left<=0) endRest();
+}
+function endRest(){
+  clearInterval(RT.iv); RT.end=0; saveRest(); wake(false);
+  $('#rest').classList.add('done'); $('#restTime').textContent='¡Listo!'; $('#restLbl').textContent='A la siguiente serie';
+  beep(); try{navigator.vibrate&&navigator.vibrate([200,100,200,100,400])}catch(e){}
+  RT.hide=setTimeout(stopRest,5000);
+}
+function stopRest(){clearInterval(RT.iv); clearTimeout(RT.hide); RT.end=0; saveRest(); wake(false); $('#rest').hidden=true; document.body.classList.remove('resting');}
+$('#restAdd').addEventListener('click',()=>{ if(!RT.end){startRest(15,'Descanso extra');return;} RT.end+=15000; RT.total+=15; saveRest(); tickRest(); });
+$('#restSkip').addEventListener('click',stopRest);
+document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&RT.end){ wake(true); tickRest(); }});
+try{const r=JSON.parse(localStorage.getItem(KEY+'.rest')); if(r&&r.end>Date.now()){ startRest(r.total,r.lbl,true); RT.end=r.end; tickRest(); }}catch(e){}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('show');clearTimeout(toastT);toastT=setTimeout(()=>e.classList.remove('show'),1800)}
+
+
+/* ---------- cambiar ejercicio ---------- */
+let swapI=0;
+function similar(cur){
+  const c=EX[cur]; const sc=k=>{const x=EX[k];let n=0;x.prim.forEach(m=>{if(c.prim.includes(m))n+=4;else if(c.sec.includes(m))n+=1});c.prim.forEach(m=>{if(x.sec.includes(m))n+=1});if(x.group===c.group)n+=2;if(c.alt===k||x.alt===cur)n+=10;return n};
+  const all=Object.keys(EX).filter(k=>k!==cur).map(k=>[k,sc(k)]);
+  const sug=all.filter(([k,n])=>n>=5).sort((a,b)=>b[1]-a[1]).slice(0,6).map(([k])=>k);
+  return {sug, rest:all.map(([k])=>k).filter(k=>!sug.includes(k))};
+}
+function renderSwap(q=''){
+  const s=DAYS[curDay-1].ex[swapI], cur=s.id, {sug,rest}=similar(cur);
+  const norm=t=>t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  const nq=norm(q.trim()), ok=k=>!nq||norm(EX[k].name+' '+GROUP[EX[k].group]+' '+EX[k].prim.map(m=>NAMES[m]).join(' ')).includes(nq);
+  const item=(k,tag)=>{const x=EX[k];return `<button class="ex" data-pick="${k}">${figSvg(x,1,'th')}<span class="nm">${x.name}<small>${x.prim.map(m=>NAMES[m]).join(', ')}</small></span>${tag?`<span class="tag">${tag}</span>`:'<span></span>'}</button>`};
+  const sg=sug.filter(ok), groups=Object.keys(GROUP).map(g=>[g,rest.filter(k=>EX[k].group===g&&ok(k))]).filter(([,l])=>l.length);
+  $('#swapView').innerHTML=`
+    <div class="top"><button class="back" data-go="ex" aria-label="Volver sin cambiar">←</button>
+      <div style="min-width:0"><span class="k">Día ${curDay} · reemplazar ${EX[cur].name}</span><h2>Cambiar ejercicio</h2></div></div>
+    <input class="inp search" id="swapQ" type="search" placeholder="Buscar por nombre o músculo" value="${esc(q)}" autocomplete="off">
+    <div class="pick" id="swapList">
+      ${sg.length?`<h3>Trabajan lo mismo</h3>${sg.map((k,j)=>item(k,j===0&&!nq?'Recomendado':'')).join('')}`:''}
+      ${groups.map(([g,l])=>`<h3>${GROUP[g]}</h3>${l.map(k=>item(k)).join('')}`).join('')}
+      ${!sg.length&&!groups.length?'<p class="empty">No hay ejercicios con ese nombre.</p>':''}
+    </div>
+    <p class="sub" style="font-size:.85rem">Se mantienen las series, repeticiones y descanso. El cambio queda guardado en tu rutina.</p>`;
+}
+function openSwap(i){swapI=i; renderSwap(); show('swapView');}
+function applySwap(k){
+  const s=DAYS[curDay-1].ex[swapI], from=s.id; if(k===from) return;
+  const orig=s.orig||from; s.id=k; if(k===orig) delete s.orig; else s.orig=orig;
+  if(EX[k].hold&&!/s$/.test(s.reps)) s.reps='30–45 s'; else if(!EX[k].hold&&EX[from].hold) s.reps='8–12';
+  saveCfg(); delete prog[pk(curDay,swapI)]; save();
+  renderEx(swapI); show('exView'); toast('Cambiado a '+EX[k].name);
+}
+$('#swapView').addEventListener('click',e=>{
+  if(e.target.closest('[data-go=ex]')){renderEx(swapI); show('exView'); return;}
+  const b=e.target.closest('[data-pick]'); if(b) applySwap(b.dataset.pick);
+});
+$('#swapView').addEventListener('input',e=>{ if(e.target.id!=='swapQ') return; const q=e.target.value, pos=e.target.selectionStart; renderSwap(q); const n=$('#swapQ'); n.focus(); try{n.setSelectionRange(pos,pos)}catch(_){} });
 
 /* ---------- eventos ---------- */
 $('#home').addEventListener('click',e=>{
@@ -689,15 +804,21 @@ $('#dayView').addEventListener('click',e=>{
 $('#exView').addEventListener('click',e=>{
   const i=+$('#exView').dataset.i;
   if(e.target.closest('[data-go=day]')){renderDay(curDay); show('dayView'); return;}
-  const a=e.target.closest('#altBtn'); if(a){renderEx(i,a.dataset.alt); window.scrollTo(0,0); return;}
-  if(e.target.closest('#backMain')){renderEx(i); window.scrollTo(0,0); return;}
+  if(e.target.closest('#swapBtn')){openSwap(i); return;}
+  if(e.target.closest('#restoreBtn')){swapI=i; applySwap(DAYS[curDay-1].ex[i].orig); return;}
   const st=e.target.closest('.set');
   if(st){
     const k=+st.dataset.k, arr=doneOf(curDay,i).slice(), n=DAYS[curDay-1].ex[i].sets;
     arr[k]=!arr[k]; prog[pk(curDay,i)]=arr; save();
     st.setAttribute('aria-pressed',!!arr[k]);
-    if(arr[k]&&arr.filter(Boolean).length>=n) toast('Ejercicio completado ✓');
+    if(arr[k]){
+      const hechas=arr.filter(Boolean).length, sx=DAYS[curDay-1].ex[i], nm=EX[sx.id].name;
+      if(hechas>=n){ toast('Ejercicio completado ✓'); startRest(parseRest(sx.rest),'Antes del siguiente ejercicio'); }
+      else startRest(parseRest(sx.rest),`${nm} · sigue la serie ${Math.min(n,arr.findIndex((v,j)=>!v&&j<n)+1||hechas+1)} de ${n}`);
+    }
+    return;
   }
+  if(e.target.closest('#restStart')){ const sx=DAYS[curDay-1].ex[i]; startRest(parseRest(sx.rest),EX[sx.id].name); }
 });
 renderHome();
 })();
