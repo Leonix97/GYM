@@ -1,0 +1,203 @@
+{
+  "tipo": "FitCard",
+  "app": "full-body",
+  "version": 1,
+  "nombre": "Full Body en Casa",
+  "autor": "Leo",
+  "nota": "Set PROIRON 20 kg · 2 min entre series · 48 h entre sesiones.",
+  "info": [
+    {
+      "titulo": "Armado de mancuernas",
+      "items": [
+        "1 Pesada (13.75 a 16.25 kg): 4 discos de 2.5 kg (+ 2 de 1.25 kg) en 1 barra.",
+        "2 Medias (8.75 a 10 kg c/u): 2 de 2.5 kg + 2 de 1.25 kg (+ 2 de 0.5 kg) por barra.",
+        "2 Ligeras (5 a 7.5 kg c/u): 2 de 1.25 kg + 2 de 0.5 kg (o 2 de 2.5 kg) por barra."
+      ]
+    },
+    {
+      "titulo": "Suplementación diaria",
+      "items": [
+        "Creatina: 5 g todos los días (entrenes o no).",
+        "Proteína (Iso Whey 90): 1 scoop post-entreno, licuado con leche, avena y plátano."
+      ]
+    }
+  ],
+  "dias": [
+    {
+      "nombre": "Lunes",
+      "enfoque": "Fuerza base",
+      "ejercicios": [
+        {
+          "ej": "goblet",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "1 Pesada al pecho"
+        },
+        {
+          "ej": "banca",
+          "nombre": "Press de pecho (suelo o cama)",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "2 Medias"
+        },
+        {
+          "ej": "mancuerna",
+          "nombre": "Remo a una mano (apoyado en cama)",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "1 Pesada · por lado"
+        },
+        {
+          "ej": "militar",
+          "nombre": "Press militar sentado",
+          "series": 3,
+          "reps": "8–12",
+          "descanso": "2 min",
+          "nota": "2 Ligeras"
+        },
+        {
+          "ej": "puente",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "Por pierna · 1 Media o Pesada en la cadera"
+        },
+        {
+          "ej": "curl",
+          "nombre": "Curl de bíceps alternado",
+          "series": 2,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "2 Ligeras"
+        }
+      ]
+    },
+    {
+      "nombre": "Miércoles",
+      "enfoque": "Unilateral y tracción",
+      "ejercicios": [
+        {
+          "ej": "bulgara",
+          "nombre": "Sentadilla búlgara (pie atrás en cama)",
+          "series": 3,
+          "reps": "8–10",
+          "descanso": "2 min",
+          "nota": "2 Medias · por pierna"
+        },
+        {
+          "ej": "rumano",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "2 Medias · baja en 3 segundos"
+        },
+        {
+          "ej": "flexiones",
+          "nombre": "Flexiones con pies en la cama",
+          "series": 3,
+          "reps": "Al fallo",
+          "descanso": "2 min",
+          "nota": "Deja 1 repetición en reserva"
+        },
+        {
+          "ej": "pullover",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "1 Pesada a dos manos"
+        },
+        {
+          "ej": "laterales",
+          "series": 3,
+          "reps": "12–15",
+          "descanso": "2 min",
+          "nota": "2 Ligeras de 3.75 a 5 kg"
+        },
+        {
+          "ej": "trasnuca",
+          "series": 2,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "1 Media a dos manos"
+        }
+      ]
+    },
+    {
+      "nombre": "Viernes",
+      "enfoque": "Hipertrofia global",
+      "ejercicios": [
+        {
+          "ej": "zancada",
+          "nombre": "Zancadas hacia atrás",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "2 Medias · por pierna"
+        },
+        {
+          "ej": "remo",
+          "nombre": "Remo inclinado a dos manos",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "2 Medias"
+        },
+        {
+          "ej": "banca",
+          "nombre": "Press neutro",
+          "series": 3,
+          "reps": "10–12",
+          "descanso": "Sin descanso",
+          "nota": "2 Medias · superserie: sigue con flexiones"
+        },
+        {
+          "ej": "flexiones",
+          "series": 3,
+          "reps": "Al fallo",
+          "descanso": "2 min",
+          "nota": "Superserie con press neutro"
+        },
+        {
+          "ej": "pajaros",
+          "series": 3,
+          "reps": "12–15",
+          "descanso": "2 min",
+          "nota": "2 Ligeras de 3.75 a 5 kg"
+        },
+        {
+          "ej": "curl",
+          "nombre": "Curl martillo",
+          "series": 2,
+          "reps": "10–12",
+          "descanso": "Sin descanso",
+          "nota": "Ligeras o Medias · superserie: sigue con press francés"
+        },
+        {
+          "ej": "frances",
+          "series": 2,
+          "reps": "10–12",
+          "descanso": "2 min",
+          "nota": "Ligeras · superserie con curl martillo"
+        },
+        {
+          "ej": "gemelos",
+          "nombre": "Pantorrillas a 1 pierna",
+          "series": 3,
+          "reps": "Al fallo",
+          "descanso": "Sin descanso",
+          "nota": "A 1 pierna · superserie: sigue con plancha"
+        },
+        {
+          "ej": "plancha",
+          "series": 3,
+          "reps": "Al fallo",
+          "descanso": "2 min",
+          "nota": "Superserie con pantorrillas"
+        }
+      ]
+    }
+  ]
+}

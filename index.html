@@ -188,6 +188,32 @@ button.stat:hover{border-color:var(--accent)}
 body.resting .app{padding-bottom:110px}
 body.resting .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 @media (prefers-reduced-motion: reduce){.ring .fg{transition:none}}
+.hero-btns{display:flex;gap:8px;flex:none}
+.day .focus{font-size:.8rem;font-weight:700;color:var(--accent);margin-top:-4px}
+.ex.sup{border-bottom-left-radius:4px;border-bottom-right-radius:4px;border-bottom-style:dashed}
+.ex.sup+.ex{border-top-left-radius:4px;border-top-right-radius:4px;margin-top:-6px}
+.exnote{margin:0;padding:10px 12px;border-radius:12px;background:var(--accent-soft);color:var(--ink);font-weight:600;font-size:.92rem}
+.info{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.info summary{cursor:pointer;font-weight:700}
+.info ul{margin:8px 0 2px;padding-left:18px;display:grid;gap:4px;font-size:.9rem;color:var(--muted)}
+.libitem{display:grid;grid-template-columns:1fr auto;gap:4px 10px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.libitem.on{border-color:var(--accent)}
+.libitem b{font-size:1.02rem;min-width:0}
+.libitem .meta{grid-column:1;font-size:.82rem;color:var(--muted)}
+.libitem .acts{grid-row:1/3;grid-column:2;display:flex;gap:6px;align-items:center}
+.libitem .use{border:1px solid var(--accent);background:none;color:var(--accent);border-radius:10px;padding:7px 12px;font-weight:700}
+.libitem .use:hover{background:var(--accent);color:var(--surface)}
+.libitem .del.sure{color:var(--hot);border-color:var(--hot);width:auto;padding:0 10px;font-size:.82rem}
+.cardbox{display:grid;gap:10px;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px}
+.cardbox textarea{min-height:96px;resize:vertical;font:12px/1.4 ui-monospace,Menlo,Consolas,monospace}
+.filebtn{position:relative;overflow:hidden;display:inline-grid;place-items:center}
+.filebtn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ghost{border:1px solid var(--line);background:var(--surface);border-radius:12px;padding:11px 16px;font-weight:700}
+.ghost:hover{border-color:var(--accent);color:var(--accent)}
+.preview{display:grid;gap:10px;border:2px solid var(--accent);border-radius:16px;padding:14px;background:var(--surface)}
+.preview ol{margin:0;padding-left:18px;font-size:.9rem;display:grid;gap:2px}
+.preview .pday{display:grid;gap:4px}
+.warn{color:var(--hot);font-size:.88rem;font-weight:600;margin:0}
 .toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:9px 16px;border-radius:10px;font-weight:600;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:50}
 .toast.show{opacity:1}
 </style>
@@ -200,6 +226,7 @@ body.resting .toast{bottom:calc(96px + env(safe-area-inset-bottom,0px))}
   <section class="screen" id="exView" hidden></section>
   <section class="screen" id="cfgView" hidden></section>
   <section class="screen" id="swapView" hidden></section>
+  <section class="screen" id="libView" hidden></section>
 </div>
 <div class="rest" id="rest" hidden role="timer" aria-live="off">
   <div class="rest-in">
@@ -449,7 +476,40 @@ const EX={
     anc:{j:'hip',x:100,y:193},
     A:{thigh:-45,shin:50,foot:0,torso:180,ua:-20,fa:-20},
     B:{torso:210,ua:-8,fa:-8},
-    eq:()=>''}
+    eq:()=>''},
+  goblet:{name:'Sentadilla goblet',group:'pierna',prim:['cuadriceps','gluteos'],sec:['aductores','abdomen','isquios'],
+    steps:['Sostén una mancuerna vertical pegada al pecho, pies al ancho de hombros.','Baja sentándote entre las piernas con el pecho arriba y los codos por dentro de las rodillas.','Sube empujando con todo el pie hasta quedar de pie.'],
+    avoid:'Dejar caer el pecho o separar la mancuerna del cuerpo.', alt:'sentadilla',
+    anc:{j:'ankle',x:96,y:G-2},
+    A:{thigh:90,shin:90,foot:0,torso:-88,ua:70,fa:-95},
+    B:{thigh:12,shin:115,torso:-62,ua:98,fa:-68},
+    eq:J=>vdb(J.hand)},
+  puente:{name:'Puente de glúteo a 1 pierna',group:'pierna',prim:['gluteos'],sec:['isquios','abductores','abdomen'],
+    steps:['Acostado boca arriba, un pie apoyado cerca de la cadera y la otra pierna estirada.','Empuja con el talón y sube la cadera hasta alinear rodilla, cadera y hombros.','Aprieta el glúteo arriba y baja lento. Haz todas las reps y cambia de pierna.'],
+    avoid:'Arquear la zona lumbar o empujar con la punta del pie.', alt:'hipthrust',
+    anc:{j:'ankle',x:128,y:197},
+    A:{thigh:-59.1,shin:73.4,foot:0,torso:180,fthigh:-59.1,fshin:-59.1,ua:0,fa:0},
+    B:{thigh:-24.3,shin:90.4,torso:156,fthigh:-24.3,fshin:-24.3},
+    eq:J=>dumbbell([J.hip[0],J.hip[1]-10])},
+  pullover:{name:'Pullover acostado',group:'traccion',prim:['dorsal','pecho'],sec:['triceps','abdomen'],
+    steps:['Acostado con una mancuerna sujeta a dos manos sobre el pecho, brazos casi estirados.','Lleva la mancuerna hacia atrás por encima de la cabeza hasta sentir el estiramiento.','Regresa al punto de inicio jalando con la espalda, sin doblar más los codos.'],
+    avoid:'Doblar y estirar los codos como si fuera un press.',
+    anc:{j:'hip',x:112,y:138},
+    A:{thigh:25,shin:95,foot:0,torso:180,ua:-88,fa:-92},
+    B:{ua:172,fa:168},
+    stat:`<rect class="EF" x="38" y="146" width="88" height="7" rx="3"/><line class="E" stroke-width="5" x1="50" y1="150" x2="50" y2="${G}"/><line class="E" stroke-width="5" x1="114" y1="150" x2="114" y2="${G}"/>`,
+    eq:J=>plate(J.hand,9)},
+  trasnuca:{name:'Extensión de tríceps tras nuca',group:'brazos',prim:['triceps'],sec:[],
+    steps:['Sostén una mancuerna a dos manos por encima de la cabeza, brazos estirados.','Dobla solo los codos y baja la mancuerna detrás de la nuca.','Estira los brazos de nuevo sin abrir los codos.'],
+    avoid:'Abrir los codos o arquear la espalda.', alt:'frances',
+    anc:{j:'ankle',x:98,y:G-2},
+    A:{thigh:90,shin:90,foot:0,torso:-90,ua:-98,fa:-92},
+    B:{fa:100},
+    eq:J=>plate(J.hand,9)},
+  pajaros:{name:'Pájaros inclinado',group:'traccion',prim:['deltpost'],sec:['trapecio'],
+    steps:['Inclina el torso hacia adelante con la espalda recta y una mancuerna en cada mano.','Abre los brazos hacia los lados con los codos apenas doblados.','Sube hasta la altura de los hombros y baja lento.'],
+    avoid:'Usar impulso o subir los hombros hacia las orejas.',
+    front:{bent:true,A:{a:8,b:12,sh:0},B:{a:82,b:88}}}
 };
 const S=(id,sets,reps,rest)=>({id,sets,reps,rest});
 const DEFAULT={title:'Full Body',days:[
@@ -462,17 +522,42 @@ const clone=o=>JSON.parse(JSON.stringify(o));
 const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 
 /* ---------- rutina configurable ---------- */
-let CFG=clone(DEFAULT), DAYS=[];
+/* Cada persona guarda varias rutinas (FitCards) y elige cuál usar. */
+let CFG=clone(DEFAULT), DAYS=[], LIB=null, prog={};
 function validCfg(c){return c&&Array.isArray(c.days)&&c.days.length&&c.days.every(d=>Array.isArray(d.ex)&&d.ex.length&&d.ex.every(e=>EX[e.id]))}
-try{const c=JSON.parse(localStorage.getItem(KEY+'.cfg')); if(validCfg(c)) CFG=c;}catch(e){}
-function applyCfg(){DAYS=CFG.days.map((d,i)=>({n:i+1,ex:d.ex}));}
+// ejercicios que trae una FitCard y que la app no tiene: usan la animación de uno parecido
+function regCustom(c){
+  for(const [id,d] of Object.entries(c.custom||{})){
+    if(EX[id]&&!EX[id].custom) continue;
+    const b=EX[d.base]&&!EX[d.base].custom?EX[d.base]:EX.sentadilla, f=a=>(a||[]).filter(m=>NAMES[m]);
+    EX[id]={...b,name:d.name||id,group:GROUP[d.group]?d.group:b.group,prim:f(d.prim).length?f(d.prim):b.prim,sec:f(d.sec),
+      steps:d.steps&&d.steps.length?d.steps:b.steps,avoid:d.avoid||b.avoid,alt:undefined,custom:true,baseName:b.name};
+  }
+}
+try{LIB=JSON.parse(localStorage.getItem(KEY+'.lib'))}catch(e){LIB=null}
+let migrated=false;
+if(!LIB||!LIB.items){
+  let c=clone(DEFAULT); try{const o=JSON.parse(localStorage.getItem(KEY+'.cfg')); if(validCfg(o)) c=o;}catch(e){}
+  LIB={active:'base',items:{base:c},orig:{base:clone(DEFAULT)}}; migrated=true;
+}
+LIB.orig=LIB.orig||{};
+Object.values(LIB.items).forEach(regCustom);
+for(const id of Object.keys(LIB.items)) if(!validCfg(LIB.items[id])) delete LIB.items[id];
+if(!Object.keys(LIB.items).length) LIB.items.base=clone(DEFAULT);
+if(!LIB.items[LIB.active]) LIB.active=Object.keys(LIB.items)[0];
+CFG=LIB.items[LIB.active];
+function applyCfg(){DAYS=CFG.days.map((d,i)=>({n:i+1,name:d.name||'',focus:d.focus||'',ex:d.ex}));}
 applyCfg();
-const saveCfg=()=>{try{localStorage.setItem(KEY+'.cfg',JSON.stringify(CFG))}catch(e){}};
+const saveLib=()=>{try{localStorage.setItem(KEY+'.lib',JSON.stringify(LIB))}catch(e){}};
+const saveCfg=()=>{LIB.items[LIB.active]=CFG; saveLib();};
 
-/* ---------- progreso (por día y ejercicio) ---------- */
-let prog={};
-try{prog=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){prog={}}
-const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(prog))}catch(e){}};
+/* ---------- progreso (por rutina, día y ejercicio) ---------- */
+const progKey=()=>KEY+'.p.'+LIB.active;
+function loadProg(){try{prog=JSON.parse(localStorage.getItem(progKey()))||{}}catch(e){prog={}}}
+const save=()=>{try{localStorage.setItem(progKey(),JSON.stringify(prog))}catch(e){}};
+if(migrated){ try{prog=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){prog={}} save(); saveLib(); } else loadProg();
+const exName=e=>e.nombre||EX[e.id].name;
+const dayTitle=d=>d.name||('Día '+d.n);
 const pk=(d,i)=>d+'-'+i;
 const doneOf=(d,i)=>prog[pk(d,i)]||[];
 const dayPct=d=>{const D_=DAYS[d-1];let t=0,c=0;D_.ex.forEach((e,i)=>{t+=e.sets;c+=doneOf(d,i).filter(Boolean).length});return t?c/t:0};
@@ -497,6 +582,7 @@ const poseAt=(ex,t)=>{const A=ex.A,B={...A,...ex.B},o={};for(const k in A){let d
 const pl=(...pts)=>pts.map(p=>p[0].toFixed(1)+','+p[1].toFixed(1)).join(' ');
 function plate(h,r=12){return `<circle class="P" cx="${h[0]}" cy="${h[1]}" r="${r}"/><circle class="Pi" cx="${h[0]}" cy="${h[1]}" r="3"/>`}
 function dumbbell(h){return `<circle class="P" cx="${h[0]}" cy="${h[1]}" r="7"/><circle class="Pi" cx="${h[0]}" cy="${h[1]}" r="2"/>`}
+function vdb(h){return `<rect class="P" x="${h[0]-5}" y="${h[1]-10}" width="10" height="20" rx="3"/>`}
 function kb(h){return `<line class="E" stroke-width="3" x1="${h[0]-5}" y1="${h[1]}" x2="${h[0]+5}" y2="${h[1]}"/><circle class="P" cx="${h[0]}" cy="${h[1]+9}" r="8"/>`}
 function roller(J){const dx=J.ankle[0]-J.knee[0],dy=J.ankle[1]-J.knee[1],l=Math.hypot(dx,dy);return `<circle class="P" cx="${J.ankle[0]+dy/l*8}" cy="${J.ankle[1]-dx/l*8}" r="6"/>`}
 /* vista frontal: para movimientos que van hacia los costados */
@@ -504,11 +590,14 @@ function frontFig(ex,t){
   const A=ex.front.A,B={...A,...ex.front.B},p={};for(const k in A)p[k]=A[k]+(B[k]-A[k])*t;
   let s=`<line class="G" x1="10" y1="${G}" x2="190" y2="${G}"/>`;
   [1,-1].forEach(k=>{s+=`<polyline class="L" stroke-width="9" points="${pl([100+7*k,124],[100+9*k,161],[100+10*k,197],[100+17*k,198])}"/>`});
-  s+=`<line class="L" stroke-width="13" x1="100" y1="126" x2="100" y2="84"/><line class="L" stroke-width="6" x1="100" y1="84" x2="100" y2="70"/><circle class="hd" cx="100" cy="60" r="9"/>`;
-  const sy=82-p.sh; s+=`<line class="L" stroke-width="9" x1="86" y1="${sy}" x2="114" y2="${sy}"/>`;
+  const bent=ex.front.bent, sy=(bent?106:82)-p.sh;
+  if(bent) s+=`<line class="L" stroke-width="13" x1="100" y1="126" x2="100" y2="108"/>`;
+  else s+=`<line class="L" stroke-width="13" x1="100" y1="126" x2="100" y2="84"/><line class="L" stroke-width="6" x1="100" y1="84" x2="100" y2="70"/><circle class="hd" cx="100" cy="60" r="9"/>`;
+  s+=`<line class="L" stroke-width="9" x1="86" y1="${sy}" x2="114" y2="${sy}"/>`;
   [1,-1].forEach(k=>{const r=a=>[k*Math.sin(a*Math.PI/180),Math.cos(a*Math.PI/180)];
     const sh=[100+14*k,sy],ua=r(p.a),fa=r(p.b),el=[sh[0]+ua[0]*28,sh[1]+ua[1]*28],h=[el[0]+fa[0]*26,el[1]+fa[1]*26];
     s+=`<polyline class="L" stroke-width="8" points="${pl(sh,el,h)}"/>`+dumbbell(h);});
+  if(bent) s+=`<circle class="hd" cx="100" cy="99" r="9"/>`;
   return s;
 }
 /* abductores: vista frontal sentado */
@@ -561,34 +650,38 @@ function bodyMap(parts,prim,sec,label){
 
 /* ---------- pantallas ---------- */
 let anim=null, curDay=1;
-function show(id){['home','dayView','exView','cfgView','swapView'].forEach(s=>$('#'+s).hidden=s!==id); if(id!=='exView') stopAnim(); window.scrollTo(0,0);}
+function show(id){['home','dayView','exView','cfgView','swapView','libView'].forEach(s=>$('#'+s).hidden=s!==id); if(id!=='exView') stopAnim(); window.scrollTo(0,0);}
+const CARDS=`<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="7" width="14" height="13" rx="2.5"/><path d="M7 4h11.5A2.5 2.5 0 0 1 21 6.5V16"/><path d="M7 12h6M7 15.5h4"/></svg>`;
 const GEAR=`<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
 function renderHome(){
   const n=DAYS.length; document.title=CFG.title||'Mi rutina';
   $('#home').innerHTML=`
     <div class="hero"><div><span class="k">Rutina · ${n} día${n>1?'s':''} por semana</span><h1>${esc(CFG.title||'Mi rutina')}</h1>
-    <p class="sub">${JSON.stringify(CFG)===JSON.stringify(DEFAULT)?'Cada sesión trabaja todo el cuerpo con ejercicios compuestos: piernas, empuje y tracción.':'Toca un día para ver sus ejercicios.'}</p></div>
-    <button class="gear" id="gearBtn" aria-label="Configurar rutina" title="Configurar rutina">${GEAR}</button></div>
+    <p class="sub">${CFG.author?`Por ${esc(CFG.author)} · `:''}${JSON.stringify(CFG)===JSON.stringify(DEFAULT)?'Cada sesión trabaja todo el cuerpo con ejercicios compuestos: piernas, empuje y tracción.':'Toca un día para ver sus ejercicios.'}</p></div>
+    <div class="hero-btns"><button class="gear" id="libBtn" aria-label="Mis rutinas y FitCards" title="Mis rutinas y FitCards">${CARDS}</button>
+    <button class="gear" id="gearBtn" aria-label="Configurar rutina" title="Configurar rutina">${GEAR}</button></div></div>
     <div class="days">${DAYS.map(d=>`
-      <button class="day" data-d="${d.n}" aria-label="Día ${d.n}">
-        <span class="num"><span class="k">Día</span><b>${d.n}</b></span>
-        <span class="meta">${d.ex.map(e=>`<span>${EX[e.id].name}</span>`).join('')}</span>
+      <button class="day" data-d="${d.n}" aria-label="${esc(dayTitle(d))}">
+        <span class="num"><span class="k">${esc(d.name||'Día')}</span><b>${d.n}</b></span>
+        ${d.focus?`<span class="focus">${esc(d.focus)}</span>`:''}
+        <span class="meta">${d.ex.map(e=>`<span>${esc(exName(e))}</span>`).join('')}</span>
         <span class="prog"><i style="width:${Math.round(dayPct(d.n)*100)}%"></i></span>
       </button>`).join('')}</div>
     <div class="note">
-      <span><b>Semana:</b> ${n===1?'repite el día al menos dos veces por semana, con descanso entre sesiones.':`repite los ${n} días cada semana${n<=3?', con un día de descanso entre cada uno':''}${n===3?' (por ejemplo lunes, miércoles y viernes)':''}.`}</span>
+      ${CFG.note?`<span><b>Semana:</b> ${esc(CFG.note)}</span>`:`<span><b>Semana:</b> ${n===1?'repite el día al menos dos veces por semana, con descanso entre sesiones.':`repite los ${n} días cada semana${n<=3?', con un día de descanso entre cada uno':''}${n===3?' (por ejemplo lunes, miércoles y viernes)':''}.`}</span>`}
       <span><b>Para progresar:</b> cuando completes todas las series en el máximo de repeticiones, sube un poco el peso.</span>
-    </div>`;
+    </div>
+    ${(CFG.info||[]).map(b=>`<details class="info"><summary>${esc(b.title||'Notas')}</summary><ul>${b.items.map(t=>`<li>${esc(t)}</li>`).join('')}</ul></details>`).join('')}`;
 }
 function renderDay(n){
   curDay=n; const d=DAYS[n-1];
   $('#dayView').innerHTML=`
     <div class="top"><button class="back" data-go="home" aria-label="Volver">←</button>
-      <div><span class="k">${esc(CFG.title||'Mi rutina')}</span><h2>Día ${n}</h2></div></div>
-    <div class="list">${d.ex.map((e,i)=>{const x=EX[e.id], dn=doneOf(n,i).filter(Boolean).length;return `
-      <button class="ex${dn>=e.sets?' done':''}" data-i="${i}">
+      <div style="min-width:0"><span class="k">${esc(d.focus||CFG.title||'Mi rutina')}</span><h2>${esc(dayTitle(d))}</h2></div></div>
+    <div class="list">${d.ex.map((e,i)=>{const x=EX[e.id], dn=doneOf(n,i).filter(Boolean).length, sup=isSuper(e);return `
+      <button class="ex${dn>=e.sets?' done':''}${sup?' sup':''}" data-i="${i}">
         ${figSvg(x,1,'th')}
-        <span class="nm">${x.name}<small>${GROUP[x.group]}${dn?` · ${dn}/${e.sets} hechas`:''}</small></span>
+        <span class="nm">${esc(exName(e))}<small>${esc(e.nota||GROUP[x.group])}${dn?` · ${dn}/${e.sets} hechas`:''}</small></span>
         <span class="sr">${e.sets} × ${esc(e.reps)}<small>series × reps</small></span>
       </button>`}).join('')}</div>
     <button class="reset" id="resetDay">Reiniciar progreso del día</button>`;
@@ -599,18 +692,20 @@ function renderEx(i){
   const legend=[...x.prim.map(k=>[k,'mp']),...x.sec.map(k=>[k,'ms'])];
   $('#exView').innerHTML=`
     <div class="top"><button class="back" data-go="day" aria-label="Volver al día">←</button>
-      <div style="min-width:0"><span class="k">Día ${curDay} · ${GROUP[x.group]}</span><h2>${x.name}</h2></div></div>
+      <div style="min-width:0"><span class="k">${esc(dayTitle(DAYS[curDay-1]))} · ${GROUP[x.group]}</span><h2>${esc(exName(s))}</h2>
+      ${x.custom?`<span class="k">Animación de referencia: ${esc(x.baseName)}</span>`:s.nombre&&s.nombre!==x.name?`<span class="k">Variante de ${esc(x.name)}</span>`:''}</div></div>
     <div class="stage">
-      <svg id="fig" viewBox="0 0 200 210" role="img" aria-label="Animación de ${x.name}">${figure(x,0)}</svg>
+      <svg id="fig" viewBox="0 0 200 210" role="img" aria-label="Animación de ${esc(exName(s))}">${figure(x,0)}</svg>
       <span class="phase" id="phase">Inicio</span>
       <button class="play" id="playBtn">❚❚ Pausa</button>
     </div>
     <div class="stats">
       <div class="stat"><span class="k">Series</span><b>${s.sets}</b></div>
       <div class="stat"><span class="k">${x.hold?'Tiempo':'Reps'}</span><b>${esc(s.reps)}</b></div>
-      <button class="stat" id="restStart" aria-label="Iniciar descanso de ${esc(s.rest)}"><span class="k">Descanso</span><b>${esc(s.rest)}</b><small>▶ Iniciar</small></button>
+      ${parseRest(s.rest)?`<button class="stat" id="restStart" aria-label="Iniciar descanso de ${esc(s.rest)}"><span class="k">Descanso</span><b>${esc(s.rest)}</b><small>▶ Iniciar</small></button>`:`<div class="stat"><span class="k">Descanso</span><b>Ninguno</b><small>Superserie</small></div>`}
     </div>
-    <div class="swaprow"><button class="swapbtn" id="swapBtn">⇄ Cambiar ejercicio</button>${s.orig&&EX[s.orig]?`<span class="orig">Reemplaza a ${EX[s.orig].name} · <button class="linkbtn" id="restoreBtn">Restaurar</button></span>`:''}</div>
+    ${s.nota?`<p class="exnote">${esc(s.nota)}</p>`:''}
+    <div class="swaprow"><button class="swapbtn" id="swapBtn">⇄ Cambiar ejercicio</button>${s.orig&&EX[s.orig]?`<span class="orig">Reemplaza a ${esc(s.origNombre||EX[s.orig].name)} · <button class="linkbtn" id="restoreBtn">Restaurar</button></span>`:''}</div>
     <div class="block"><h3>Marca tus series</h3><div class="sets">${Array.from({length:s.sets},(_,k)=>`<button class="set" data-k="${k}" aria-pressed="${!!done[k]}" aria-label="Serie ${k+1}">${k+1}</button>`).join('')}</div></div>
     <div class="block"><h3>Músculos que trabajas</h3>
       <div class="maps">
@@ -639,15 +734,17 @@ function renderCfg(err){
     <div class="top"><button class="back" data-act="cancel" aria-label="Volver sin guardar">←</button>
       <div><span class="k">Ajusta tu rutina</span><h2>Configurar</h2></div></div>
     <div class="field"><label class="k" for="cfgTitle">Nombre de la rutina</label>
-      <input class="inp" id="cfgTitle" maxlength="30" value="${esc(d.title)}" placeholder="Mi rutina"></div>
+      <input class="inp" id="cfgTitle" maxlength="40" value="${esc(d.title)}" placeholder="Mi rutina"></div>
     <div class="field"><span class="k">Días por semana</span>
       <span class="stepper"><button data-act="days-" aria-label="Menos días">−</button><b>${d.days.length}</b><button data-act="days+" aria-label="Más días">+</button></span></div>
     ${d.days.map((day,i)=>`
       <div class="cfg-day">
         <header><h3>Día ${i+1}</h3><span class="k">${day.ex.length} ejercicio${day.ex.length>1?'s':''}</span></header>
+        <input class="inp" data-df="name" data-d="${i}" id="dname-${i}" maxlength="24" value="${esc(day.name||'')}" placeholder="Nombre del día (opcional): Lunes, Pierna…" aria-label="Nombre del día ${i+1}">
         ${day.ex.map((e,j)=>`
           <div class="cfg-ex" data-d="${i}" data-j="${j}">
             <select class="sel" data-f="id" id="ex-${i}-${j}" aria-label="Ejercicio ${j+1} del día ${i+1}">${exOpts(e.id)}</select>
+            ${e.nombre?`<span class="k">Se muestra como: ${esc(e.nombre)}</span>`:''}
             <div class="cfg-line">
               <div class="field"><span class="k">Series</span><span class="stepper"><button data-act="set-" aria-label="Menos series">−</button><b>${e.sets}</b><button data-act="set+" aria-label="Más series">+</button></span></div>
               <div class="field"><label class="k" for="rep-${i}-${j}">Reps</label><input class="inp" data-f="reps" id="rep-${i}-${j}" maxlength="8" value="${esc(e.reps)}"></div>
@@ -678,7 +775,7 @@ function cfgAct(e){
   else if(act==='up'){ [ex[j-1],ex[j]]=[ex[j],ex[j-1]]; }
   else if(act==='del'){ ex.splice(j,1); }
   else if(act==='add'){ const used=new Set(draft.days[d].ex.map(x=>x.id)); const id=Object.keys(EX).find(k=>!used.has(k))||'sentadilla'; draft.days[d].ex.push(S(id,3,EX[id].hold?'30–45 s':'8–12','90 s')); }
-  else if(act==='restore'){ draft=clone(DEFAULT); renderCfg(); toast('Rutina original cargada. Pulsa Guardar para usarla'); return; }
+  else if(act==='restore'){ draft=clone(LIB.orig[LIB.active]||DEFAULT); renderCfg(); toast('Rutina original cargada. Pulsa Guardar para usarla'); return; }
   else if(act==='save'){
     draft.title=(draft.title||'').trim()||'Mi rutina';
     const bad=draft.days.findIndex(x=>x.ex.some(e=>!String(e.reps).trim()));
@@ -691,9 +788,10 @@ function cfgAct(e){
 function cfgInput(e){
   const t=e.target;
   if(t.id==='cfgTitle'){draft.title=t.value; return;}
+  if(t.dataset.df==='name'){ const v=t.value.trim(); if(v) draft.days[+t.dataset.d].name=v; else delete draft.days[+t.dataset.d].name; return; }
   const f=t.dataset.f, row=t.closest('.cfg-ex'); if(!f||!row) return;
   const it=draft.days[+row.dataset.d].ex[+row.dataset.j]; it[f]=t.value;
-  if(f==='id'&&e.type==='change'){ delete it.orig; it.reps=EX[t.value].hold?'30–45 s':(/s$/.test(it.reps)?'8–12':it.reps); const y=window.scrollY; renderCfg(); window.scrollTo(0,y); }
+  if(f==='id'&&e.type==='change'){ delete it.orig; delete it.nombre; delete it.origNombre; it.reps=EX[t.value].hold?'30–45 s':(/s$/.test(it.reps)?'8–12':it.reps); const y=window.scrollY; renderCfg(); window.scrollTo(0,y); }
 }
 
 /* ---------- animación ---------- */
@@ -714,7 +812,8 @@ function stopAnim(){ if(anim){anim.run=false; cancelAnimationFrame(anim.raf); an
 
 let toastT;
 /* ---------- temporizador de descanso ---------- */
-const parseRest=r=>{const m=String(r).match(/\d+/); if(!m) return 90; const n=+m[0]; return /min/i.test(r)?n*60:n;};
+const parseRest=r=>{if(/^\s*(sin|0\b|ninguno)/i.test(String(r))) return 0; const m=String(r).match(/\d+/); if(!m) return 90; const n=+m[0]; return /min/i.test(r)?n*60:n;};
+const isSuper=e=>parseRest(e.rest)===0;
 const RT={end:0,total:0,iv:0,lbl:'',hide:0,lock:null,ac:null};
 const fmt=x=>Math.floor(x/60)+':'+String(x%60).padStart(2,'0');
 function unlockAudio(){try{RT.ac=RT.ac||new (window.AudioContext||window.webkitAudioContext)(); if(RT.ac.state==='suspended') RT.ac.resume();}catch(e){}}
@@ -765,7 +864,7 @@ function renderSwap(q=''){
   const sg=sug.filter(ok), groups=Object.keys(GROUP).map(g=>[g,rest.filter(k=>EX[k].group===g&&ok(k))]).filter(([,l])=>l.length);
   $('#swapView').innerHTML=`
     <div class="top"><button class="back" data-go="ex" aria-label="Volver sin cambiar">←</button>
-      <div style="min-width:0"><span class="k">Día ${curDay} · reemplazar ${EX[cur].name}</span><h2>Cambiar ejercicio</h2></div></div>
+      <div style="min-width:0"><span class="k">${esc(dayTitle(DAYS[curDay-1]))} · reemplazar ${esc(exName(s))}</span><h2>Cambiar ejercicio</h2></div></div>
     <input class="inp search" id="swapQ" type="search" placeholder="Buscar por nombre o músculo" value="${esc(q)}" autocomplete="off">
     <div class="pick" id="swapList">
       ${sg.length?`<h3>Trabajan lo mismo</h3>${sg.map((k,j)=>item(k,j===0&&!nq?'Recomendado':'')).join('')}`:''}
@@ -777,10 +876,12 @@ function renderSwap(q=''){
 function openSwap(i){swapI=i; renderSwap(); show('swapView');}
 function applySwap(k){
   const s=DAYS[curDay-1].ex[swapI], from=s.id; if(k===from) return;
-  const orig=s.orig||from; s.id=k; if(k===orig) delete s.orig; else s.orig=orig;
+  const orig=s.orig||from; if(s.orig===undefined&&s.nombre) s.origNombre=s.nombre;
+  delete s.nombre; s.id=k;
+  if(k===orig){ delete s.orig; if(s.origNombre) s.nombre=s.origNombre; delete s.origNombre; } else s.orig=orig;
   if(EX[k].hold&&!/s$/.test(s.reps)) s.reps='30–45 s'; else if(!EX[k].hold&&EX[from].hold) s.reps='8–12';
   saveCfg(); delete prog[pk(curDay,swapI)]; save();
-  renderEx(swapI); show('exView'); toast('Cambiado a '+EX[k].name);
+  renderEx(swapI); show('exView'); toast('Cambiado a '+exName(s));
 }
 $('#swapView').addEventListener('click',e=>{
   if(e.target.closest('[data-go=ex]')){renderEx(swapI); show('exView'); return;}
@@ -788,9 +889,129 @@ $('#swapView').addEventListener('click',e=>{
 });
 $('#swapView').addEventListener('input',e=>{ if(e.target.id!=='swapQ') return; const q=e.target.value, pos=e.target.selectionStart; renderSwap(q); const n=$('#swapQ'); n.focus(); try{n.setSelectionRange(pos,pos)}catch(_){} });
 
+
+/* ---------- FitCards (tarjetas de rutina) ---------- */
+let pending=null, delAsk=null;
+const cardStr=v=>v==null?'':String(v).replace(/\s+/g,' ').trim().slice(0,200);
+const normName=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+function parseCard(text){
+  const t=String(text||''), a=t.indexOf('{'), b=t.lastIndexOf('}');
+  if(a<0||b<a) throw 'No encontré una FitCard en ese texto. Copia el contenido completo, desde la primera { hasta la última }.';
+  let o; try{o=JSON.parse(t.slice(a,b+1))}catch(e){throw 'La FitCard está incompleta o tiene un error de formato. Pídela de nuevo o cópiala completa.'}
+  if(!Array.isArray(o.dias)||!o.dias.length) throw 'La FitCard no trae días de entrenamiento.';
+  const custom={};
+  for(const [id,d] of Object.entries(o.nuevos||{})) if(d&&typeof d==='object') custom[id]={name:cardStr(d.nombre)||id,group:cardStr(d.grupo),base:cardStr(d.base),prim:d.principales||[],sec:d.ayuda||[],steps:(d.pasos||[]).map(cardStr).filter(Boolean),avoid:cardStr(d.evitar)};
+  const byName={}; Object.entries(EX).forEach(([k,x])=>{if(!x.custom) byName[normName(x.name)]=k});
+  const resolve=(ej,nm)=>EX[ej]&&!EX[ej].custom?ej:custom[ej]?ej:byName[normName(ej)]||byName[normName(nm)]||null;
+  const unknown=[];
+  const days=o.dias.slice(0,7).map(d=>({name:cardStr(d.nombre).slice(0,24),focus:cardStr(d.enfoque).slice(0,40),
+    ex:(d.ejercicios||[]).map(e=>{const id=resolve(e.ej,e.nombre); if(!id){unknown.push(cardStr(e.nombre||e.ej)||'(sin nombre)'); return null}
+      const it={id,sets:Math.min(10,Math.max(1,parseInt(e.series)||3)),reps:cardStr(e.reps).slice(0,10)||'8–12',rest:cardStr(e.descanso).slice(0,16)||'90 s'};
+      const nm=cardStr(e.nombre); if(nm&&nm!==(EX[id]||{}).name&&!custom[id]) it.nombre=nm.slice(0,48); const nt=cardStr(e.nota); if(nt) it.nota=nt.slice(0,90);
+      return it}).filter(Boolean)}))
+    .map(d=>{if(!d.name) delete d.name; if(!d.focus) delete d.focus; return d}).filter(d=>d.ex.length);
+  if(!days.length) throw 'Ningún ejercicio de esta FitCard existe en esta versión de la app.';
+  const cfg={title:cardStr(o.nombre).slice(0,40)||'Rutina importada',days};
+  if(cardStr(o.autor)) cfg.author=cardStr(o.autor).slice(0,40);
+  if(cardStr(o.nota)) cfg.note=cardStr(o.nota);
+  const info=(o.info||[]).map(x=>({title:cardStr(x.titulo),items:(x.items||[]).map(cardStr).filter(Boolean)})).filter(x=>x.title||x.items.length);
+  if(info.length) cfg.info=info;
+  const used={}; days.forEach(d=>d.ex.forEach(e=>{if(custom[e.id]) used[e.id]=custom[e.id]})); if(Object.keys(used).length) cfg.custom=used;
+  return {cfg,unknown};
+}
+function cardOf(c){
+  const o={tipo:'FitCard',app:'full-body',version:1,nombre:c.title,autor:c.author,nota:c.note,
+    info:c.info&&c.info.map(b=>({titulo:b.title,items:b.items})),
+    dias:c.days.map(d=>({nombre:d.name,enfoque:d.focus,ejercicios:d.ex.map(e=>({ej:e.id,nombre:e.nombre||EX[e.id].name,series:e.sets,reps:e.reps,descanso:e.rest,nota:e.nota}))}))};
+  if(c.custom) o.nuevos=Object.fromEntries(Object.entries(c.custom).map(([k,d])=>[k,{nombre:d.name,grupo:d.group,base:d.base,principales:d.prim,ayuda:d.sec,pasos:d.steps,evitar:d.avoid}]));
+  return JSON.stringify(o,null,2);
+}
+const slug=t=>normName(t).replace(/ /g,'-').slice(0,40)||'rutina';
+function renderLib(err){
+  const ids=Object.keys(LIB.items);
+  const pv=pending&&pending.cfg;
+  $('#libView').innerHTML=`
+    <div class="top"><button class="back" data-go="home" aria-label="Volver">←</button>
+      <div><span class="k">FitCards</span><h2>Mis rutinas</h2></div></div>
+    ${pv?`<div class="preview" role="region" aria-label="Vista previa de la FitCard">
+      <span class="k">Vista previa</span><h3 style="font-size:1.6rem">${esc(pv.title)}</h3>
+      ${pv.author||pv.note?`<p class="sub" style="margin:0">${[pv.author&&'Por '+esc(pv.author),pv.note&&esc(pv.note)].filter(Boolean).join(' · ')}</p>`:''}
+      ${pv.days.map((d,i)=>`<div class="pday"><b>${esc(d.name||'Día '+(i+1))}${d.focus?` · <span style="color:var(--accent)">${esc(d.focus)}</span>`:''}</b>
+        <ol>${d.ex.map(e=>`<li>${esc(e.nombre||(pv.custom&&pv.custom[e.id]?pv.custom[e.id].name:EX[e.id].name))} — ${e.sets} × ${esc(e.reps)}</li>`).join('')}</ol></div>`).join('')}
+      ${pending.unknown.length?`<p class="warn">Estos ejercicios no existen en esta versión de la app y se omitirán: ${pending.unknown.map(esc).join(', ')}.</p>`:''}
+      <div class="actions"><button class="primary" data-lib="add">Agregar y usar</button><button class="ghost" data-lib="cancel">Cancelar</button></div>
+    </div>`:''}
+    <div class="list">${ids.map(id=>{const c=LIB.items[id], on=id===LIB.active, n=c.days.length;return `
+      <div class="libitem${on?' on':''}"><b>${esc(c.title||'Mi rutina')}</b>
+        <span class="meta">${n} día${n>1?'s':''}${c.author?' · '+esc(c.author):''}</span>
+        <span class="acts">${on?'<span class="tag">En uso</span>':`<button class="use" data-lib="use" data-id="${id}">Usar</button>
+          <button class="ico del${delAsk===id?' sure':''}" data-lib="del" data-id="${id}" aria-label="Eliminar ${esc(c.title)}">${delAsk===id?'¿Eliminar?':'✕'}</button>`}</span>
+      </div>`}).join('')}</div>
+    <div class="cardbox">
+      <h3>Cargar una FitCard</h3>
+      <p class="sub" style="margin:0;font-size:.88rem">Elige el archivo de la FitCard o pega su texto. Antes de agregarla verás una vista previa.</p>
+      <div class="actions"><label class="primary filebtn">Elegir archivo<input type="file" id="cardFile" accept=".json,.txt,application/json,text/plain"></label></div>
+      <label class="k" for="cardText">O pega el texto de la FitCard</label>
+      <textarea class="inp" id="cardText" placeholder='{ "tipo": "FitCard", "nombre": "…", "dias": [ … ] }'></textarea>
+      <div class="actions"><button class="ghost" data-lib="paste">Cargar texto</button></div>
+      ${err?`<p class="err" role="alert">${esc(err)}</p>`:''}
+    </div>
+    <div class="cardbox">
+      <h3>Compartir la rutina en uso</h3>
+      <p class="sub" style="margin:0;font-size:.88rem">Convierte «${esc(CFG.title||'Mi rutina')}» en una FitCard para pasarla a otra persona.</p>
+      <div class="actions"><button class="ghost" data-lib="share">Compartir archivo</button><button class="ghost" data-lib="copy">Copiar texto</button></div>
+    </div>`;
+}
+function openLib(){pending=null; delAsk=null; renderLib(); show('libView');}
+function loadCardText(txt){
+  try{ pending=parseCard(txt); renderLib(); window.scrollTo(0,0); }
+  catch(e){ pending=null; renderLib(typeof e==='string'?e:'No se pudo leer la FitCard.'); }
+}
+function switchTo(id){
+  stopRest(); LIB.active=id; CFG=LIB.items[id]; applyCfg(); loadProg(); saveLib();
+  renderHome(); show('home'); toast('Usando «'+(CFG.title||'Mi rutina')+'»');
+}
+$('#libView').addEventListener('click',async e=>{
+  if(e.target.closest('[data-go=home]')){renderHome(); show('home'); return;}
+  const b=e.target.closest('[data-lib]'); if(!b) return;
+  const a=b.dataset.lib, id=b.dataset.id;
+  if(a!=='del') delAsk=null;
+  if(a==='paste') loadCardText($('#cardText').value);
+  else if(a==='cancel'){pending=null; renderLib();}
+  else if(a==='add'&&pending){
+    const nid='r'+Date.now().toString(36), c=pending.cfg; pending=null;
+    regCustom(c); LIB.items[nid]=c; LIB.orig[nid]=clone(c); switchTo(nid);
+  }
+  else if(a==='use') switchTo(id);
+  else if(a==='del'){
+    if(delAsk!==id){delAsk=id; renderLib(); return;}
+    delete LIB.items[id]; delete LIB.orig[id]; try{localStorage.removeItem(KEY+'.p.'+id)}catch(_){}
+    delAsk=null; saveLib(); renderLib(); toast('Rutina eliminada');
+  }
+  else if(a==='copy'){
+    const txt=cardOf(CFG);
+    try{ await navigator.clipboard.writeText(txt); toast('FitCard copiada'); }
+    catch(_){ const ta=$('#cardText'); ta.value=txt; ta.focus(); ta.select(); toast('Selecciona y copia el texto'); }
+  }
+  else if(a==='share'){
+    const txt=cardOf(CFG), name=slug(CFG.title)+'.fitcard.json';
+    try{ const f=new File([txt],name,{type:'application/json'});
+      if(navigator.canShare&&navigator.canShare({files:[f]})){ await navigator.share({files:[f],title:CFG.title}); return; } }
+    catch(err){ if(err&&err.name==='AbortError') return; }
+    try{ const u=URL.createObjectURL(new Blob([txt],{type:'application/json'})), l=document.createElement('a'); l.href=u; l.download=name; document.body.appendChild(l); l.click(); l.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000); toast('Descargando '+name); }
+    catch(_){ toast('No se pudo crear el archivo. Usa Copiar texto'); }
+  }
+});
+$('#libView').addEventListener('change',e=>{
+  if(e.target.id!=='cardFile'||!e.target.files[0]) return;
+  const f=e.target.files[0]; if(f.size>300000){renderLib('Ese archivo es demasiado grande para ser una FitCard.'); return;}
+  const r=new FileReader(); r.onload=()=>loadCardText(r.result); r.onerror=()=>renderLib('No se pudo abrir el archivo.'); r.readAsText(f);
+});
+
 /* ---------- eventos ---------- */
 $('#home').addEventListener('click',e=>{
   if(e.target.closest('#gearBtn')){openCfg(); return;}
+  if(e.target.closest('#libBtn')){openLib(); return;}
   const b=e.target.closest('.day'); if(b){renderDay(+b.dataset.d); show('dayView');}
 });
 $('#cfgView').addEventListener('click',cfgAct);
@@ -812,13 +1033,14 @@ $('#exView').addEventListener('click',e=>{
     arr[k]=!arr[k]; prog[pk(curDay,i)]=arr; save();
     st.setAttribute('aria-pressed',!!arr[k]);
     if(arr[k]){
-      const hechas=arr.filter(Boolean).length, sx=DAYS[curDay-1].ex[i], nm=EX[sx.id].name;
-      if(hechas>=n){ toast('Ejercicio completado ✓'); startRest(parseRest(sx.rest),'Antes del siguiente ejercicio'); }
-      else startRest(parseRest(sx.rest),`${nm} · sigue la serie ${Math.min(n,arr.findIndex((v,j)=>!v&&j<n)+1||hechas+1)} de ${n}`);
+      const hechas=arr.filter(Boolean).length, sx=DAYS[curDay-1].ex[i], nm=exName(sx), sec=parseRest(sx.rest), nx=DAYS[curDay-1].ex[i+1];
+      if(!sec){ toast(nx?'Superserie: pasa a '+exName(nx):'Sin descanso: sigue'); }
+      else if(hechas>=n){ toast('Ejercicio completado ✓'); startRest(sec,'Antes del siguiente ejercicio'); }
+      else startRest(sec,`${nm} · sigue la serie ${Math.min(n,arr.findIndex((v,j)=>!v&&j<n)+1||hechas+1)} de ${n}`);
     }
     return;
   }
-  if(e.target.closest('#restStart')){ const sx=DAYS[curDay-1].ex[i]; startRest(parseRest(sx.rest),EX[sx.id].name); }
+  if(e.target.closest('#restStart')){ const sx=DAYS[curDay-1].ex[i]; startRest(parseRest(sx.rest),exName(sx)); }
 });
 renderHome();
 })();
