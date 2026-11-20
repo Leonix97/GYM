@@ -136,6 +136,25 @@ h3{font-size:1.15rem;font-weight:800;letter-spacing:.04em}
 .mb{fill:var(--body)}
 .mp{fill:var(--hot)}
 .ms{fill:var(--warm)}
+/* mapa de músculos trabajados en el inicio */
+.l1{fill:color-mix(in srgb,var(--hot) 30%,var(--body))}
+.l2{fill:color-mix(in srgb,var(--hot) 55%,var(--body))}
+.l3{fill:color-mix(in srgb,var(--hot) 78%,var(--body))}
+.l4{fill:var(--hot)}
+.musc{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px;display:grid;gap:10px}
+.musc-head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.musc-count{font:800 1.5rem/1 var(--f-display);font-variant-numeric:tabular-nums}
+.musc-count small{font:600 .78rem var(--f-body);color:var(--muted);margin-left:4px}
+.musc .figs{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.musc figure{margin:0;display:grid;gap:2px;justify-items:center}
+.musc svg{width:100%;max-width:140px;height:auto}
+.musc figcaption{font-size:.7rem;color:var(--muted);font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+.scale{display:flex;align-items:center;gap:6px;font-size:.76rem;color:var(--muted);flex-wrap:wrap}
+.scale i{width:18px;height:10px;border-radius:3px;display:inline-block}
+.musc-top{display:flex;flex-wrap:wrap;gap:6px}
+.musc-empty{margin:0;font-size:.88rem;color:var(--muted)}
+.musc-foot{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:.85rem}
+.musc-foot .reset{padding:0}
 /* inicio: cabecera con engranaje */
 .hero{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
 .hero>div{min-width:0}
@@ -643,6 +662,34 @@ const BACK=[
   ['lumbar',`<rect x="52" y="90" width="16" height="25" rx="5"/>`],['triceps',pair(31,79,6,13,8)],['antebrazos',pair(26,107,5,14,10)],
   ['gluteos',pair(50,131,10,11)],['abductores',pair(41,118,6,6)],['deltlat',pair(30,52,4,8,8)],['isquios',pair(50,163,8,22,2)],['gemelos',pair(49,203,6,16)]
 ];
+/* series hechas por músculo en la rutina activa: principal cuenta 1, de ayuda 0.5 */
+function workload(){
+  const w={};
+  DAYS.forEach(d=>d.ex.forEach((e,i)=>{const n=doneOf(d.n,i).filter(Boolean).length; if(!n) return; const x=EX[e.id];
+    x.prim.forEach(m=>w[m]=(w[m]||0)+n); x.sec.forEach(m=>w[m]=(w[m]||0)+n*.5);}));
+  return w;
+}
+const lvl=v=>!v?'mb':v<2?'l1':v<4?'l2':v<6?'l3':'l4'; // 6 series o más a la semana = músculo completo
+function heatMap(parts,w,label){
+  return `<svg viewBox="0 0 120 236" role="img" aria-label="${label}"><g class="mb">${BASE}</g>${parts.map(([k,s])=>`<g class="${k?lvl(w[k]):'mb'}">${s}</g>`).join('')}</svg>`;
+}
+let weekAsk=false;
+function muscCard(){
+  const w=workload(), all=Object.keys(NAMES), hit=all.filter(m=>w[m]>0), top=hit.sort((a,b)=>w[b]-w[a]).slice(0,5);
+  const sw=c=>`<i class="${c}" style="background:${c==='mb'?'var(--body)':c==='l4'?'var(--hot)':`color-mix(in srgb,var(--hot) ${{l1:30,l2:55,l3:78}[c]}%,var(--body))`}"></i>`;
+  return `<section class="musc" aria-label="Músculos trabajados">
+    <div class="musc-head"><h3>Músculos trabajados</h3><span class="musc-count">${hit.length}<small>de ${all.length}</small></span></div>
+    <div class="figs">
+      <figure>${heatMap(FRONT,w,'Frente: músculos trabajados')}<figcaption>Frente</figcaption></figure>
+      <figure>${heatMap(BACK,w,'Espalda: músculos trabajados')}<figcaption>Espalda</figcaption></figure>
+    </div>
+    <div class="scale">${sw('mb')}Sin trabajar ${sw('l1')}${sw('l2')}${sw('l3')}${sw('l4')} 6 series o más</div>
+    ${hit.length?`<div class="musc-top">${top.map(m=>`<span class="chip">${NAMES[m]} · ${(Math.round(w[m]*2)/2).toString().replace('.',',')} series</span>`).join('')}</div>`
+      :'<p class="musc-empty">Marca tus series en cada ejercicio y aquí se irán pintando los músculos que trabajas.</p>'}
+    ${hit.length?`<div class="musc-foot">${weekAsk?`<span>¿Borrar las series marcadas de todos los días?</span><button class="linkbtn" id="weekYes">Sí, empezar de cero</button><button class="reset" id="weekNo">Cancelar</button>`
+      :`<button class="reset" id="weekNew">Empezar semana nueva</button>`}</div>`:''}
+  </section>`;
+}
 function bodyMap(parts,prim,sec,label){
   const c=k=>prim.includes(k)?'mp':sec.includes(k)?'ms':'mb';
   return `<svg viewBox="0 0 120 236" role="img" aria-label="${label}"><g class="mb">${BASE}</g>${parts.map(([k,s])=>`<g class="${k?c(k):'mb'}">${s}</g>`).join('')}</svg>`;
@@ -667,6 +714,7 @@ function renderHome(){
         <span class="meta">${d.ex.map(e=>`<span>${esc(exName(e))}</span>`).join('')}</span>
         <span class="prog"><i style="width:${Math.round(dayPct(d.n)*100)}%"></i></span>
       </button>`).join('')}</div>
+    ${muscCard()}
     <div class="note">
       ${CFG.note?`<span><b>Semana:</b> ${esc(CFG.note)}</span>`:`<span><b>Semana:</b> ${n===1?'repite el día al menos dos veces por semana, con descanso entre sesiones.':`repite los ${n} días cada semana${n<=3?', con un día de descanso entre cada uno':''}${n===3?' (por ejemplo lunes, miércoles y viernes)':''}.`}</span>`}
       <span><b>Para progresar:</b> cuando completes todas las series en el máximo de repeticiones, sube un poco el peso.</span>
@@ -1012,6 +1060,9 @@ $('#libView').addEventListener('change',e=>{
 $('#home').addEventListener('click',e=>{
   if(e.target.closest('#gearBtn')){openCfg(); return;}
   if(e.target.closest('#libBtn')){openLib(); return;}
+  if(e.target.closest('#weekNew')){weekAsk=true; renderHome(); $('#weekYes').focus(); return;}
+  if(e.target.closest('#weekNo')){weekAsk=false; renderHome(); return;}
+  if(e.target.closest('#weekYes')){weekAsk=false; prog={}; save(); stopRest(); renderHome(); toast('Semana nueva: series en cero'); return;}
   const b=e.target.closest('.day'); if(b){renderDay(+b.dataset.d); show('dayView');}
 });
 $('#cfgView').addEventListener('click',cfgAct);
